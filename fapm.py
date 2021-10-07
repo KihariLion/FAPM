@@ -3,7 +3,7 @@ import re
 import sys
 import time
 import urllib.request
-from argparse import ArgumentParser as ArgumentParser_
+from argparse import ArgumentParser as ArgumentParser_, ArgumentTypeError
 
 import jinja2
 from dateutil import parser as dateutil_parser
@@ -18,7 +18,7 @@ VERSION = '2021.10.7.1'
 
 USAGE = """
 Usage: python3 fapm.py --help
-       python3 fapm.py [-u] [-a UUID] [-b UUID] [-e]
+       python3 fapm.py [-u] [-a UUID] [-b UUID] [-e] [-f FOLDERS...]
 """.strip()
 
 HELP = f"""
@@ -41,6 +41,7 @@ Optional Arguments:
   -a UUID          Specify session token A instead of prompting for it.
   -b UUID          Specify session token B instead of prompting for it.
   -e, --no-emojis  Replace smilies with BBCode text instead of emojis.
+  -f FOLDERS...    Check for new messages only in the specified folders.
 """.strip()
 
 ABOUT_COOKIES = """
@@ -71,6 +72,8 @@ invalidate the session cookies you provided to this script.
 # Be considerate to your fellow furries and be patient. You can let the script
 # run overnight if you have a lot of messages to download.
 SLEEP = 5
+
+FOLDERS = ('inbox', 'outbox', 'archive', 'trash')
 
 RE_MODERN_ID = re.compile(r'/msg/pms/\d+/(\d+)/#message')
 RE_MODERN_SUBJECT = re.compile(r'<div class="section-header">.*?<h2>(.*?)</h2>', re.DOTALL)
@@ -273,6 +276,15 @@ def prompt_session_token(name):
     return token if RE_UUID.match(token) else None
 
 
+def validate_folder(folder):
+    folder = folder.lower()
+
+    if folder not in FOLDERS:
+        raise ArgumentTypeError('invalid folder name')
+
+    return folder
+
+
 def download_ids(folder, page, uuid_a, uuid_b):
     request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/{page}/')
     request.add_header('Cookie', f'a={uuid_a}; b={uuid_b}; folder={folder}')
@@ -298,6 +310,7 @@ if __name__ == '__main__':
     arg_parser.add_argument('-a')
     arg_parser.add_argument('-b')
     arg_parser.add_argument('-e', '--no-emojis', action='store_true')
+    arg_parser.add_argument('-f', nargs='+', type=validate_folder)
     args = arg_parser.parse_args()
 
     db_engine = create_engine('sqlite:///messages.db')
@@ -323,9 +336,10 @@ if __name__ == '__main__':
         if need_session_tokens:
             print()
 
+        folders = tuple(set(args.f)) if args.f else None
         new_message_count = 0
 
-        for folder in ('inbox', 'outbox', 'archive', 'trash'):
+        for folder in folders or FOLDERS:
             page = 1
             ids = download_ids(folder, page, uuid_a, uuid_b)
             newest_known = Message.newest_in_folder(folder)
