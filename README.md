@@ -20,8 +20,8 @@ Setup on Windows
 ----------------
 
 These instructions assume that the `python.exe` in your `%PATH%` meets the
-requirements above. Also, be sure to also add `virtualenv.exe` to `%PATH%` if
-this did not happen automatically when you installed it.
+requirements above. Also, be sure to add `virtualenv.exe` to `%PATH%` if this
+did not happen automatically when you installed it.
 
 With `FAPM` as the current working directory, enter the following commands:
 
