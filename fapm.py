@@ -14,7 +14,7 @@ from sqlalchemy.types import Integer, Unicode
 from sqlalchemy.sql.expression import label, or_
 
 
-VERSION = '2021.10.7.1'
+VERSION = '2021.10.7.2'
 
 USAGE = """
 Usage: python3 fapm.py --help
