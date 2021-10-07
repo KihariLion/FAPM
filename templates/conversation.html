@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>FAPM - {{ contact }}</title>
+    <style type="text/css">
+      html {
+        color:#fff;
+        font:16px Arial, sans-serif;
+        background:#1b1b1d;
+      }
+      body {
+        margin:30px auto;
+        width:920px;
+      }
+      header {
+        margin:0 0 20px;
+        font-size:1.2rem;
+      }
+      a {
+        color:#eeb;
+        text-decoration:none;
+      }
+      a:hover,
+      a:active {
+        color:#ccf;
+      }
+      article {
+        position:relative;
+        margin:12px auto 12px;
+        padding:15px 20px;
+        width:800px;
+        border-radius:10px;
+      }
+      article.sent {
+        left:20px;
+        background:#6b7284;
+      }
+      article.sent::before {
+        content:"";
+        position:absolute;
+        top:20px;
+        right:-19px;
+        width:0;
+        height:0;
+        border-top:10px solid #6b7284;
+        border-bottom:10px solid transparent;
+        border-left:10px solid #6b7284;
+        border-right:10px solid transparent;
+      }
+      article.received {
+        right:20px;
+        background:#353b45;
+      }
+      article.received::before {
+        content:"";
+        position:absolute;
+        top:20px;
+        left:-19px;
+        width:0;
+        height:0;
+        border-left:10px solid transparent;
+        border-right:10px solid #353b45;
+        border-top:10px solid #353b45;
+        border-bottom:10px solid transparent;
+      }
+      div.byline time {
+        float:right;
+      }
+      div.byline span.folder {
+        float:right;
+        margin:0 20px 0 0;
+      }
+      div.subject {
+        margin:10px 0 0;
+        font-size:1.25em;
+      }
+      div.text {
+        margin:10px 0 0;
+      }
+      span.bbcode_spoiler {
+        color:#000;
+        background:#000;
+      }
+      span.bbcode_spoiler:hover {
+        color:#fff;
+      }
+      span.bbcode_quote {
+        display:block;
+        padding:10px;
+        border:1px solid #1b1b1d;
+      }
+      code.bbcode_left {
+        display:block;
+        font-family:inherit;
+      }
+      code.bbcode_center {
+        display:block;
+        font-family:inherit;
+        text-align:center;
+      }
+      code.bbcode_right {
+        display:block;
+        font-family:inherit;
+        text-align:right;
+      }
+      article.sent span.bbcode_quote {
+        background:#5b6274;
+      }
+      article.received span.bbcode_quote {
+        background:#454b55;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      Archived using the<br />
+      <strong>FurAffinity Private Message Downloader</strong><br />
+      <a href="https://www.github.com/kiharilion" target="_blank">https://www.github.com/kiharilion</a>
+    </header>
+    {% for message in messages %}
+      <article class="{{ 'sent' if message.sent else 'received' }}">
+        <div class="byline">
+          <strong>{{ message.sender }}</strong>
+          <time datetime="{{ message.timestamp_format('%Y-%m-%d %H:%M:00.000') }}">{{ 'Sent' if message.sent else 'Received' }} {{ message.timestamp_format() }}</time>
+          <span class="folder">[{{ message.folder.title() }}]</span>
+        </div>
+        {% if message.subject %}
+          <div class="subject">{{ message.subject }}</div>
+        {% endif %}
+        {% if message.text %}
+          <div class="text">
+            {{ message.text_format() | safe }}
+          </div>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </body>
+</html>

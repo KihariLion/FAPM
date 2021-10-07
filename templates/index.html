@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>FAPM</title>
+    <style type="text/css">
+      html {
+        color:#fff;
+        font:16px Arial, sans-serif;
+        background:#1b1b1d;
+      }
+      body {
+        margin:30px auto;
+        width:920px;
+      }
+      header {
+        margin:0 0 20px;
+        font-size:1.2rem;
+      }
+      header a {
+        color:#eeb;
+        text-decoration:none;
+      }
+      header a:hover,
+      header a:active {
+        color:#ccf;
+      }
+      main a {
+        color:#fff;
+        text-decoration:none;
+      }
+      article {
+        position:relative;
+        margin:12px 0;
+        padding:15px 20px;
+        background:#353b45;
+      }
+      article:hover {
+        background:#454b55;
+      }
+      div.byline time {
+        float:right;
+      }
+      div.subject {
+        margin:10px 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      Archived using the<br />
+      <strong>FurAffinity Private Message Downloader</strong><br />
+      <a href="https://www.github.com/kiharilion" target="_blank">https://www.github.com/kiharilion</a>
+    </header>
+    <main>
+    {% for message in messages %}
+      <a href="html/{{ message.contact }}.html">
+        <article>
+          <div class="byline">
+            <strong>{{ message.contact }}</strong>
+            <time datetime="{{ message.timestamp_format('%Y-%m-%d %H:%M:00.000') }}">{{ message.timestamp_format() }}</time>
+          </div>
+          <div class="subject">{{ message.subject }}</div>
+        </article>
+      </a>
+    {% endfor %}
+    </main>
+  </body>
+</html>
