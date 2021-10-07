@@ -43,7 +43,7 @@ Optional Arguments:
   -e, --no-emojis  Replace smilies with BBCode text instead of emojis.
 """.strip()
 
-ABOUT_SESSION_COOKIES = """
+ABOUT_COOKIES = """
 In Firefox, sign into your FurAffinity account, then press SHIFT F9 to open the
 Storage Inspector window. The cookies named A and B have values that might look
 similar to this:
@@ -54,7 +54,7 @@ Double-click on a value to highlight it, then press CTRL C to copy it. Paste
 each of the values into the prompt below.
 """.lstrip()
 
-ABOUT_FIRST_UPDATE = f"""
+ABOUT_UPDATE = f"""
 {USAGE}
 
 You have not downloaded any messages yet! Rerun the script with the --update
@@ -157,7 +157,7 @@ class Message(Model):
             kwargs['sender'] = extract_sender(html)
             kwargs['receiver'] = extract_receiver(html)
             kwargs['text'] = extract_text(html)
-            kwargs['sent'] = 1 if extract_username(html) == kwargs['sender'] else 0
+            kwargs['sent'] = 1 if extract_own_username(html) == kwargs['sender'] else 0
 
         super().__init__(*args, **kwargs)
 
@@ -228,7 +228,7 @@ def extract_text(html):
     return match.replace('\n', '').replace('\r', '').strip()
 
 
-def extract_username(html):
+def extract_own_username(html):
     return _extract(html, RE_MODERN_USERNAME, RE_CLASSIC_USERNAME, 'username')
 
 
@@ -312,7 +312,7 @@ if __name__ == '__main__':
         need_session_tokens = uuid_a is None or uuid_b is None
 
         if need_session_tokens:
-            print(ABOUT_SESSION_COOKIES)
+            print(ABOUT_COOKIES)
 
         while uuid_a is None:
             uuid_a = prompt_session_token('A')
@@ -328,11 +328,11 @@ if __name__ == '__main__':
         for folder in ('inbox', 'outbox', 'archive', 'trash'):
             page = 1
             ids = download_ids(folder, page, uuid_a, uuid_b)
-            newest_message = Message.newest_in_folder(folder)
+            newest_known = Message.newest_in_folder(folder)
 
             while ids:
                 for id_ in ids:
-                    if newest_message and id_ <= newest_message.id_:
+                    if newest_known and id_ <= newest_known.id_:
                         ids = None
                         break
 
@@ -363,7 +363,7 @@ if __name__ == '__main__':
     messages_for_index = []
 
     if not args.update and not contacts:
-        sys.exit(ABOUT_FIRST_UPDATE)
+        sys.exit(ABOUT_UPDATE)
 
     print(f'Formatting conversations with {len(contacts):,} contacts')
 
