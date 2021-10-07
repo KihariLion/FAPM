@@ -122,7 +122,7 @@
       <article class="{{ 'sent' if message.sent else 'received' }}">
         <div class="byline">
           <strong>{{ message.sender }}</strong>
-          <time datetime="{{ message.timestamp_format('%Y-%m-%d %H:%M:00.000') }}">{{ 'Sent' if message.sent else 'Received' }} {{ message.timestamp_format() }}</time>
+          <time datetime="{{ message.timestamp_format() }}":00.000>{{ 'Sent' if message.sent else 'Received' }} {{ message.timestamp_format() }}</time>
           <span class="folder">[{{ message.folder.title() }}]</span>
         </div>
         {% if message.subject %}

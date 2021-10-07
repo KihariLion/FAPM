@@ -179,7 +179,7 @@ class Message(Model):
           .order_by(cls.id_) \
           .all()
 
-    def timestamp_format(self, pattern='%Y-%m-%d %-I:%M%P'):
+    def timestamp_format(self, pattern='%Y-%m-%d %H:%M'):
         return time.strftime(pattern, time.localtime(self.timestamp))
 
     def text_format(self):
@@ -337,7 +337,7 @@ if __name__ == '__main__':
                         break
 
                     message = download_message(id_, folder, uuid_a, uuid_b)
-                    print(f'{message.timestamp_format("%Y-%m-%d %H:%M")} [{folder.title()}] {message.subject}')
+                    print(f'{message.timestamp_format()} [{folder.title()}] {message.subject}')
                     db_session.add(message)
                     new_message_count += 1
                     time.sleep(SLEEP)

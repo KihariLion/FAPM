@@ -58,7 +58,7 @@
         <article>
           <div class="byline">
             <strong>{{ message.contact }}</strong>
-            <time datetime="{{ message.timestamp_format('%Y-%m-%d %H:%M:00.000') }}">{{ message.timestamp_format() }}</time>
+            <time datetime="{{ message.timestamp_format() }}":00.000>{{ message.timestamp_format() }}</time>
           </div>
           <div class="subject">{{ message.subject }}</div>
         </article>
