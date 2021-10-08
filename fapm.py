@@ -19,6 +19,7 @@ VERSION = '2021.10.8.0'
 
 USAGE = """
 Usage: python3 fapm.py --help
+       python3 fapm.py --version
        python3 fapm.py [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...]
 """.strip()
 
@@ -38,6 +39,7 @@ even if you have not viewed them on FurAffinity itself.
 
 Optional Arguments:
   -h, --help       Show this help message and exit.
+  --version        Show version number and exit.
   -u, --update     Check for new private messages and download them.
   -a UUID          Specify session token A instead of prompting for it.
   -b UUID          Specify session token B instead of prompting for it.
@@ -307,6 +309,7 @@ def download_message(id_, folder, uuid_a, uuid_b):
 
 if __name__ == '__main__':
     arg_parser = ArgumentParser(prog='fapm')
+    arg_parser.add_argument('--version', action='version', version=VERSION)
     arg_parser.add_argument('-u', '--update', action='store_true')
     arg_parser.add_argument('-a')
     arg_parser.add_argument('-b')
