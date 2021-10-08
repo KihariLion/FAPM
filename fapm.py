@@ -43,7 +43,7 @@ Optional Arguments:
   -u, --update     Check for new private messages and download them.
   -a UUID          Specify session token A instead of prompting for it.
   -b UUID          Specify session token B instead of prompting for it.
-  -e, --no-emojis  Replace smilies with BBCode text instead of emojis.
+  -e, --no-emojis  Replace smilies with BBCode text.
   -f FOLDER...     Check for new messages only in the specified folders.
 """.strip()
 
