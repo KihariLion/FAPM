@@ -1,9 +1,9 @@
+import argparse
 import os
 import re
 import sys
 import time
 import urllib.request
-from argparse import ArgumentParser as ArgumentParser_, ArgumentTypeError
 
 import jinja2
 from dateutil import parser as dateutil_parser
@@ -132,7 +132,7 @@ SMILIE_REPLACEMENTS = (
 
 
 # Change ArgumentParser's output formatting.
-class ArgumentParser(ArgumentParser_):
+class ArgumentParser(argparse.ArgumentParser):
     def print_help(self):
         print(HELP)
 
@@ -283,7 +283,7 @@ def validate_folder(folder):
     folder = folder.lower()
 
     if folder not in FOLDERS:
-        raise ArgumentTypeError('invalid folder name')
+        raise argparse.ArgumentTypeError('invalid folder name')
 
     return folder
 
@@ -367,11 +367,11 @@ if __name__ == '__main__':
         print(f'{new_message_count:,} new message{"" if new_message_count == 1 else "s"} downloaded')
         db_session.commit()
 
-    jinja2_loader = jinja2.FileSystemLoader('templates')
-    jinja2_env = jinja2.Environment(loader=jinja2_loader, autoescape=True)
-    jinja2_env.globals.update(secure_filename=secure_filename)
-    index_template = jinja2_env.get_template('index.html')
-    conversation_template = jinja2_env.get_template('conversation.html')
+    jinja_loader = jinja2.FileSystemLoader('templates')
+    jinja_env = jinja2.Environment(loader=jinja_loader, autoescape=True)
+    jinja_env.globals.update(secure_filename=secure_filename)
+    index_template = jinja_env.get_template('index.html')
+    conversation_template = jinja_env.get_template('conversation.html')
 
     try:
         os.mkdir('html')
