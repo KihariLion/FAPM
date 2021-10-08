@@ -18,7 +18,7 @@ VERSION = '2021.10.7.2'
 
 USAGE = """
 Usage: python3 fapm.py --help
-       python3 fapm.py [-u] [-a UUID] [-b UUID] [-e] [-f FOLDERS...]
+       python3 fapm.py [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...]
 """.strip()
 
 HELP = f"""
@@ -41,7 +41,7 @@ Optional Arguments:
   -a UUID          Specify session token A instead of prompting for it.
   -b UUID          Specify session token B instead of prompting for it.
   -e, --no-emojis  Replace smilies with BBCode text instead of emojis.
-  -f FOLDERS...    Check for new messages only in the specified folders.
+  -f FOLDER...     Check for new messages only in the specified folders.
 """.strip()
 
 ABOUT_COOKIES = """
