@@ -15,7 +15,7 @@ from sqlalchemy.sql.expression import label, or_
 from werkzeug.utils import secure_filename
 
 
-VERSION = '2021.10.7.2'
+VERSION = '2021.10.8.0'
 
 USAGE = """
 Usage: python3 fapm.py --help
