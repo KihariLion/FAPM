@@ -54,7 +54,7 @@
     </header>
     <main>
     {% for message in messages %}
-      <a href="html/{{ message.contact }}.html">
+      <a href="html/{{ secure_filename(message.contact) }}.html">
         <article>
           <div class="byline">
             <strong>{{ message.contact }}</strong>

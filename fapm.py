@@ -12,6 +12,7 @@ from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.schema import Column
 from sqlalchemy.types import Integer, Unicode
 from sqlalchemy.sql.expression import label, or_
+from werkzeug.utils import secure_filename
 
 
 VERSION = '2021.10.7.2'
@@ -365,6 +366,7 @@ if __name__ == '__main__':
 
     jinja2_loader = jinja2.FileSystemLoader('templates')
     jinja2_env = jinja2.Environment(loader=jinja2_loader, autoescape=True)
+    jinja2_env.globals.update(secure_filename=secure_filename)
     index_template = jinja2_env.get_template('index.html')
     conversation_template = jinja2_env.get_template('conversation.html')
 
@@ -385,7 +387,7 @@ if __name__ == '__main__':
         messages = Message.conversation_with(contact)
         messages_for_index.append(messages[-1])
 
-        with open(f'html/{contact}.html', 'w') as file_:
+        with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
             file_.write(conversation_template.render(contact=contact, messages=messages))
 
     with open('index.html', 'w') as file_:
