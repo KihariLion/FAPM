@@ -137,8 +137,15 @@ class ArgumentParser(argparse.ArgumentParser):
         print(HELP)
 
     def error(self, message):
-        print(f'{USAGE}\n\n{self.prog}: error: {message}')
-        sys.exit(64)
+        die(message, 64, True)
+
+
+def die(message, exit_code=1, show_usage=False):
+    if show_usage:
+        print(USAGE, end='\n\n')
+
+    print(f'\033[1m{arg_parser.prog}: \033[31merror: \033[0m{message}')
+    sys.exit(exit_code)
 
 
 Model = declarative_base()
@@ -207,7 +214,7 @@ def _extract(html, re_modern, re_classic, required_name=False):
     match = re_modern.search(html) or re_classic.search(html)
 
     if required_name and not match:
-        raise RuntimeError(f'Cannot extract {required_name} from HTML')
+        die(f'cannot extract {required_name}')
 
     return match.group(1).strip()
 
