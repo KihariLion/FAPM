@@ -10,8 +10,8 @@ from dateutil import parser as dateutil_parser
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.schema import Column
-from sqlalchemy.types import Integer, Unicode
 from sqlalchemy.sql.expression import label, or_
+from sqlalchemy.types import Integer, Unicode
 from werkzeug.utils import secure_filename
 
 
