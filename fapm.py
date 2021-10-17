@@ -295,6 +295,13 @@ def validate_folder(folder):
     return folder
 
 
+def validate_session_token(token):
+    if not RE_UUID.match(token):
+        raise argparse.ArgumentTypeError('invalid session token')
+
+    return token
+
+
 def download_ids(folder, page, uuid_a, uuid_b):
     request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/{page}/')
     request.add_header('Cookie', f'a={uuid_a}; b={uuid_b}; folder={folder}')
@@ -318,8 +325,8 @@ if __name__ == '__main__':
     arg_parser = ArgumentParser(prog='fapm')
     arg_parser.add_argument('--version', action='version', version=VERSION)
     arg_parser.add_argument('-u', '--update', action='store_true')
-    arg_parser.add_argument('-a')
-    arg_parser.add_argument('-b')
+    arg_parser.add_argument('-a', type=validate_session_token)
+    arg_parser.add_argument('-b', type=validate_session_token)
     arg_parser.add_argument('-e', '--no-emojis', action='store_true')
     arg_parser.add_argument('-f', nargs='+', type=validate_folder)
     args = arg_parser.parse_args()
