@@ -17,18 +17,14 @@ from werkzeug.utils import secure_filename
 
 VERSION = '2021.10.17.0'
 
-USAGE = """
-Usage: python3 fapm.py --help
-       python3 fapm.py --version
-       python3 fapm.py [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...]
-""".strip()
-
 HELP = f"""
 FurAffinity Private Message Downloader
 Version {VERSION}
 https://www.github.com/kiharilion
 
-{USAGE}
+Usage: python3 fapm.py --help
+       python3 fapm.py --version
+       python3 fapm.py [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...]
 
 Downloads private messages from FurAffinity, splits them into conversations
 with individual users, and generates an HTML document for each conversation
@@ -46,6 +42,8 @@ Optional Arguments:
   -e, --no-emojis  Replace smilies with BBCode text.
   -f FOLDER...     Check for new messages only in the specified folders.
 """.strip()
+
+USAGE = HELP.split('\n\n')[1]
 
 ABOUT_COOKIES = """
 In Firefox, sign into your FurAffinity account, then press SHIFT F9 to open the
