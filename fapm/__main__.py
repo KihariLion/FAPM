@@ -22,9 +22,9 @@ FurAffinity Private Message Downloader
 Version {VERSION}
 https://www.github.com/kiharilion
 
-Usage: python3 fapm.py --help
-       python3 fapm.py --version
-       python3 fapm.py [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...]
+Usage: python3 -m fapm --help
+       python3 -m fapm --version
+       python3 -m fapm [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...]
 
 Downloads private messages from FurAffinity, splits them into conversations
 with individual users, and generates an HTML document for each conversation

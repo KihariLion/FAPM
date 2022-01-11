@@ -43,7 +43,7 @@ First Run
 
 You can now run the script for the first time:
 
-$ `python fapm.py --update`
+$ `python -m fapm --update`
 
 If you have a lot of private messages, it will take a long time for the script
 to complete. However, once your messages have been downloaded, you can run the

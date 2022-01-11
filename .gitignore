@@ -1,5 +1,6 @@
-/examples/
+__pycache__/
+*.db
+*.pyc
 /html/
 /venv/
 /index.html
-*.db
