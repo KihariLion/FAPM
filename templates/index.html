@@ -25,24 +25,29 @@
       header a:active {
         color:#ccf;
       }
-      main a {
-        color:#fff;
-        text-decoration:none;
-      }
       article {
         position:relative;
-        margin:12px 0;
         padding:15px 20px;
         background:#353b45;
       }
-      article:hover {
+      article a {
+        color:#fff;
+        font-weight:700;
+        text-decoration:none;
+      }
+      article a:hover,
+      article a:active {
+        color:#ccf;
+      }
+      article.even {
         background:#454b55;
       }
-      div.byline time {
+      span.contact {
+        margin-right:2em;
         float:right;
       }
-      div.subject {
-        margin:10px 0 0;
+      time {
+        float:right;
       }
     </style>
   </head>
@@ -53,17 +58,13 @@
       <a href="https://www.github.com/kiharilion" target="_blank">https://www.github.com/kiharilion</a>
     </header>
     <main>
-    {% for message in messages %}
-      <a href="html/{{ secure_filename(message.contact) }}.html">
-        <article>
-          <div class="byline">
-            <strong>{{ message.contact }}</strong>
-            <time datetime="{{ message.timestamp_format() }}:00.000">{{ message.timestamp_format() }}</time>
-          </div>
-          <div class="subject">{{ message.subject }}</div>
+      {% for message in messages %}
+        <article class="{{ 'even' if loop.index is even else 'odd' }}">
+          <a href="html/{{ secure_filename(message.contact) }}.html">{% if message.subject %}{{ message.subject }}{% else %}<em>No Subject</em>{% endif %}</a>
+          <time datetime="{{ message.timestamp_format() }}:00.000">{{ message.timestamp_format() }}</time>
+          <span class="contact">{{ message.contact }}</span>
         </article>
-      </a>
-    {% endfor %}
+      {% endfor %}
     </main>
   </body>
 </html>
