@@ -55,6 +55,12 @@ similar to this:
 
 Double-click on a value to highlight it, then press CTRL C to copy it. Paste
 each of the values into the prompt below.
+
+WARNING!
+
+When you enter your session cookie data, you will give this program complete
+control over your FurAffinity account. Only you can decide whether or not you
+trust this software and wish to continue using it.
 """.lstrip()
 
 ABOUT_UPDATE = f"""
