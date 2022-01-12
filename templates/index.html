@@ -32,7 +32,6 @@
       }
       article a {
         color:#fff;
-        font-weight:700;
         text-decoration:none;
       }
       article a:hover,
@@ -60,7 +59,7 @@
     <main>
       {% for message in messages %}
         <article class="{{ 'even' if loop.index is even else 'odd' }}">
-          <a href="html/{{ secure_filename(message.contact) }}.html">{% if message.subject %}{{ message.subject }}{% else %}<em>No Subject</em>{% endif %}</a>
+          <a href="html/{{ secure_filename(message.contact) }}.html">{% if message.subject_format() %}<strong>{{ message.subject_format() }}</strong>{% else %}<em>No Subject</em>{% endif %}</a>
           <time datetime="{{ message.timestamp_format() }}:00.000">{{ message.timestamp_format() }}</time>
           <span class="contact">{{ message.contact }}</span>
         </article>

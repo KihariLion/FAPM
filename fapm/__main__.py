@@ -24,7 +24,7 @@ https://www.github.com/kiharilion
 
 Usage: python3 -m fapm --help
        python3 -m fapm --version
-       python3 -m fapm [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...]
+       python3 -m fapm [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...] [-r]
 
 Downloads private messages from FurAffinity, splits them into conversations
 with individual users, and generates an HTML document for each conversation
@@ -41,6 +41,7 @@ Optional Arguments:
   -b UUID          Specify session token B instead of prompting for it.
   -e, --no-emojis  Replace smilies with BBCode text.
   -f FOLDER...     Check for new messages only in the specified folders.
+  -r, --keep-re    Do not strip RE: from message subjects.
 """.strip()
 
 USAGE = HELP.split('\n\n')[1]
@@ -193,6 +194,17 @@ class Message(Model):
     def timestamp_format(self, pattern='%Y-%m-%d %H:%M'):
         return time.strftime(pattern, time.localtime(self.timestamp))
 
+    def subject_format(self):
+        if args.keep_re:
+            return self.subject
+
+        subject = self.subject
+
+        while subject and subject.lower().startswith('re:'):
+            subject = subject[3:].lstrip()
+
+        return subject
+
     def text_format(self):
         text = self.text
 
@@ -327,6 +339,7 @@ if __name__ == '__main__':
     arg_parser.add_argument('-b', type=validate_session_token)
     arg_parser.add_argument('-e', '--no-emojis', action='store_true')
     arg_parser.add_argument('-f', nargs='+', type=validate_folder)
+    arg_parser.add_argument('-r', '--keep-re', action='store_true')
     args = arg_parser.parse_args()
 
     db_engine = create_engine('sqlite:///messages.db')

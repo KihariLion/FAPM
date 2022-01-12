@@ -125,8 +125,8 @@
           <time datetime="{{ message.timestamp_format() }}:00.000">{{ 'Sent' if message.sent else 'Received' }} {{ message.timestamp_format() }}</time>
           <span class="folder">[{{ message.folder.title() }}]</span>
         </div>
-        {% if message.subject %}
-          <div class="subject">{{ message.subject }}</div>
+        {% if message.subject_format() %}
+          <div class="subject">{{ message.subject_format() }}</div>
         {% endif %}
         {% if message.text %}
           <div class="text">
