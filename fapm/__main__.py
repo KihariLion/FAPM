@@ -33,11 +33,6 @@ control over your FurAffinity account. Only you can decide whether or not you
 trust this software and wish to continue using it.
 """.lstrip()
 
-ABOUT_UPDATE = f"""
-You have not downloaded any messages yet! Rerun the script with the --update
-option enabled. See --help for more information.
-""".strip()
-
 ABOUT_LOG_OUT = """
 For your security, you should log out of your FurAffinity account. This will
 invalidate the session cookies you provided to this script.
@@ -251,8 +246,8 @@ except OSError:
 contacts = query_contacts()
 messages_for_index = []
 
-if not cli.args.update and not contacts:
-    sys.exit(ABOUT_UPDATE)
+if not contacts:
+    sys.exit('No conversations to format')
 
 print(f'Formatting conversations with {len(contacts):,} contacts')
 
