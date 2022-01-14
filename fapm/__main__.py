@@ -24,7 +24,7 @@ https://www.github.com/kiharilion
 
 Usage: python3 -m fapm --help
        python3 -m fapm --version
-       python3 -m fapm [-u] [-a UUID] [-b UUID] [-e] [-f FOLDER...] [-r]
+       python3 -m fapm [-u] [-a UUID] [-b UUID] [-f FOLDER...] [-e] [-r]
 
 Downloads private messages from FurAffinity, splits them into conversations
 with individual users, and generates an HTML document for each conversation
@@ -39,8 +39,8 @@ Optional Arguments:
   -u, --update     Check for new private messages and download them.
   -a UUID          Specify session token A instead of prompting for it.
   -b UUID          Specify session token B instead of prompting for it.
-  -e, --no-emojis  Replace smilies with BBCode text.
   -f FOLDER...     Check for new messages only in the specified folders.
+  -e, --no-emojis  Replace smilies with BBCode text.
   -r, --keep-re    Do not strip RE: from message subjects.
 """.strip()
 
@@ -323,8 +323,8 @@ arg_parser.add_argument('--version', action='version', version=VERSION)
 arg_parser.add_argument('-u', '--update', action='store_true')
 arg_parser.add_argument('-a', type=validate_session_token)
 arg_parser.add_argument('-b', type=validate_session_token)
-arg_parser.add_argument('-e', '--no-emojis', action='store_true')
 arg_parser.add_argument('-f', nargs='+', type=validate_folder)
+arg_parser.add_argument('-e', '--no-emojis', action='store_true')
 arg_parser.add_argument('-r', '--keep-re', action='store_true')
 args = arg_parser.parse_args()
 
