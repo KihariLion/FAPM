@@ -14,7 +14,7 @@ from sqlalchemy.sql.expression import label, or_
 from sqlalchemy.types import Integer, Unicode
 from werkzeug.utils import secure_filename
 
-from . import __version__ as VERSION
+from . import __version__ as VERSION, is_folder, is_session_token
 
 
 HELP = f"""
@@ -98,8 +98,6 @@ RE_CLASSIC_SENDER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?>(.+?)</
 RE_CLASSIC_RECEIVER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?<a .*?>(.+?)</a>', re.DOTALL)
 RE_CLASSIC_TEXT = re.compile(r'<a href="/msg/compose/">.*? class="popup_date">.*?<br/><br/>(.+?)</td>', re.DOTALL)
 RE_CLASSIC_USERNAME = re.compile(r'<a id="my-username".*?\~(.*?)</a>', re.DOTALL)
-
-RE_UUID = re.compile('^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$')
 
 RE_QUOTE_START = re.compile(r'\[QUOTE\]', re.IGNORECASE)
 RE_QUOTE_END = re.compile(r'\[/QUOTE\]', re.IGNORECASE)
@@ -276,27 +274,25 @@ def query_contacts():
 
 
 def prompt_session_token(name):
-    token = input(f'UUID for session token {name}: ').strip()
+    value = input(f'UUID for session token {name}: ').strip()
 
     # Checking that the token is a valid UUID helps ensure that the user
     # entered the correct value.
-    return token if RE_UUID.match(token) else None
+    return value if is_session_token(value) else None
 
 
-def validate_folder(folder):
-    folder = folder.lower()
+def validate_folder(value):
+    if not is_folder(value.lower()):
+        raise argparse.ArgumentTypeError(f'invalid folder name: {value}')
 
-    if folder not in FOLDERS:
-        raise argparse.ArgumentTypeError('invalid folder name')
-
-    return folder
+    return value.lower()
 
 
-def validate_session_token(token):
-    if not RE_UUID.match(token):
-        raise argparse.ArgumentTypeError('invalid session token')
+def validate_session_token(value):
+    if not is_session_token(value):
+        raise argparse.ArgumentTypeError(f'invalid session token: {value}')
 
-    return token
+    return value
 
 
 def download_ids(folder, page, uuid_a, uuid_b):
@@ -335,8 +331,8 @@ db_sessionmaker = sessionmaker(db_engine)
 db_session = scoped_session(db_sessionmaker)
 
 if args.update:
-    uuid_a = args.a if args.a and RE_UUID.match(args.a) else None
-    uuid_b = args.b if args.b and RE_UUID.match(args.b) else None
+    uuid_a = args.a if args.a and is_session_token(args.a) else None
+    uuid_b = args.b if args.b and is_session_token(args.b) else None
     need_session_tokens = uuid_a is None or uuid_b is None
 
     if need_session_tokens:
