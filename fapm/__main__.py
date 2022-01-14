@@ -10,7 +10,7 @@ from sqlalchemy.sql.expression import label, or_
 from sqlalchemy.types import Integer, Unicode
 from werkzeug.utils import secure_filename
 
-from . import __version__ as VERSION, is_folder, is_session_token
+from . import __version__ as VERSION, FOLDERS, is_folder, is_session_token
 from . import cli
 from . import db
 from . import extract
@@ -48,8 +48,6 @@ invalidate the session cookies you provided to this script.
 # Be considerate to your fellow furries and be patient. You can let the script
 # run overnight if you have a lot of messages to download.
 SLEEP = 5
-
-FOLDERS = ('inbox', 'outbox', 'archive', 'trash')
 
 RE_MODERN_ID = re.compile(r'/msg/pms/\d+/(\d+)/#message')
 RE_CLASSIC_ID = re.compile(r'href="/viewmessage/(\d+)/"')
@@ -212,10 +210,10 @@ if cli.args.update:
     if need_session_tokens:
         print()
 
-    folders = tuple(set(cli.args.f)) if cli.args.f else None
+    folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
     new_message_count = 0
 
-    for folder in folders or FOLDERS:
+    for folder in folders:
         page = 1
         ids = download_ids(folder, page, uuid_a, uuid_b)
         newest_known = Message.newest_in_folder(folder)
