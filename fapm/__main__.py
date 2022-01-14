@@ -337,97 +337,96 @@ def download_message(id_, folder, uuid_a, uuid_b):
     return Message(html=html, id_=id_, folder=folder)
 
 
-if __name__ == '__main__':
-    arg_parser = ArgumentParser(prog='fapm')
-    arg_parser.add_argument('--version', action='version', version=VERSION)
-    arg_parser.add_argument('-u', '--update', action='store_true')
-    arg_parser.add_argument('-a', type=validate_session_token)
-    arg_parser.add_argument('-b', type=validate_session_token)
-    arg_parser.add_argument('-e', '--no-emojis', action='store_true')
-    arg_parser.add_argument('-f', nargs='+', type=validate_folder)
-    arg_parser.add_argument('-r', '--keep-re', action='store_true')
-    args = arg_parser.parse_args()
+arg_parser = ArgumentParser(prog='fapm')
+arg_parser.add_argument('--version', action='version', version=VERSION)
+arg_parser.add_argument('-u', '--update', action='store_true')
+arg_parser.add_argument('-a', type=validate_session_token)
+arg_parser.add_argument('-b', type=validate_session_token)
+arg_parser.add_argument('-e', '--no-emojis', action='store_true')
+arg_parser.add_argument('-f', nargs='+', type=validate_folder)
+arg_parser.add_argument('-r', '--keep-re', action='store_true')
+args = arg_parser.parse_args()
 
-    db_engine = create_engine('sqlite:///messages.db')
-    Model.metadata.bind = db_engine
-    Model.metadata.create_all()
-    db_sessionmaker = sessionmaker(db_engine)
-    db_session = scoped_session(db_sessionmaker)
+db_engine = create_engine('sqlite:///messages.db')
+Model.metadata.bind = db_engine
+Model.metadata.create_all()
+db_sessionmaker = sessionmaker(db_engine)
+db_session = scoped_session(db_sessionmaker)
 
-    if args.update:
-        uuid_a = args.a if args.a and RE_UUID.match(args.a) else None
-        uuid_b = args.b if args.b and RE_UUID.match(args.b) else None
-        need_session_tokens = uuid_a is None or uuid_b is None
+if args.update:
+    uuid_a = args.a if args.a and RE_UUID.match(args.a) else None
+    uuid_b = args.b if args.b and RE_UUID.match(args.b) else None
+    need_session_tokens = uuid_a is None or uuid_b is None
 
-        if need_session_tokens:
-            print(ABOUT_COOKIES)
+    if need_session_tokens:
+        print(ABOUT_COOKIES)
 
-        while uuid_a is None:
-            uuid_a = prompt_session_token('A')
+    while uuid_a is None:
+        uuid_a = prompt_session_token('A')
 
-        while uuid_b is None:
-            uuid_b = prompt_session_token('B')
+    while uuid_b is None:
+        uuid_b = prompt_session_token('B')
 
-        if need_session_tokens:
-            print()
+    if need_session_tokens:
+        print()
 
-        folders = tuple(set(args.f)) if args.f else None
-        new_message_count = 0
+    folders = tuple(set(args.f)) if args.f else None
+    new_message_count = 0
 
-        for folder in folders or FOLDERS:
-            page = 1
-            ids = download_ids(folder, page, uuid_a, uuid_b)
-            newest_known = Message.newest_in_folder(folder)
+    for folder in folders or FOLDERS:
+        page = 1
+        ids = download_ids(folder, page, uuid_a, uuid_b)
+        newest_known = Message.newest_in_folder(folder)
 
-            while ids:
-                for id_ in ids:
-                    if newest_known and id_ <= newest_known.id_:
-                        ids = None
-                        break
+        while ids:
+            for id_ in ids:
+                if newest_known and id_ <= newest_known.id_:
+                    ids = None
+                    break
 
-                    message = download_message(id_, folder, uuid_a, uuid_b)
-                    print(f'{message.timestamp_format()} [{folder.title()}] {message.subject}')
-                    db_session.add(message)
-                    new_message_count += 1
-                    time.sleep(SLEEP)
+                message = download_message(id_, folder, uuid_a, uuid_b)
+                print(f'{message.timestamp_format()} [{folder.title()}] {message.subject}')
+                db_session.add(message)
+                new_message_count += 1
+                time.sleep(SLEEP)
 
-                if ids:
-                    page += 1
-                    ids = download_ids(folder, page, uuid_a, uuid_b)
+            if ids:
+                page += 1
+                ids = download_ids(folder, page, uuid_a, uuid_b)
 
-        print(f'{new_message_count:,} new message{"" if new_message_count == 1 else "s"} downloaded')
-        db_session.commit()
+    print(f'{new_message_count:,} new message{"" if new_message_count == 1 else "s"} downloaded')
+    db_session.commit()
 
-    jinja_loader = jinja2.FileSystemLoader('templates')
-    jinja_env = jinja2.Environment(loader=jinja_loader, autoescape=True)
-    jinja_env.globals.update(secure_filename=secure_filename)
-    index_template = jinja_env.get_template('index.html')
-    conversation_template = jinja_env.get_template('conversation.html')
+jinja_loader = jinja2.FileSystemLoader('templates')
+jinja_env = jinja2.Environment(loader=jinja_loader, autoescape=True)
+jinja_env.globals.update(secure_filename=secure_filename)
+index_template = jinja_env.get_template('index.html')
+conversation_template = jinja_env.get_template('conversation.html')
 
-    try:
-        os.mkdir('html')
-    except OSError:
-        pass
+try:
+    os.mkdir('html')
+except OSError:
+    pass
 
-    contacts = query_contacts()
-    messages_for_index = []
+contacts = query_contacts()
+messages_for_index = []
 
-    if not args.update and not contacts:
-        sys.exit(ABOUT_UPDATE)
+if not args.update and not contacts:
+    sys.exit(ABOUT_UPDATE)
 
-    print(f'Formatting conversations with {len(contacts):,} contacts')
+print(f'Formatting conversations with {len(contacts):,} contacts')
 
-    for contact in contacts:
-        messages = Message.conversation_with(contact)
-        messages_for_index.append(messages[-1])
+for contact in contacts:
+    messages = Message.conversation_with(contact)
+    messages_for_index.append(messages[-1])
 
-        with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
-            file_.write(conversation_template.render(contact=contact, messages=messages))
+    with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
+        file_.write(conversation_template.render(contact=contact, messages=messages))
 
-    with open('index.html', 'w') as file_:
-        file_.write(index_template.render(messages=messages_for_index))
+with open('index.html', 'w') as file_:
+    file_.write(index_template.render(messages=messages_for_index))
 
-    db_session.close()
+db_session.close()
 
-    if args.update:
-        print(ABOUT_LOG_OUT)
+if args.update:
+    print(ABOUT_LOG_OUT)
