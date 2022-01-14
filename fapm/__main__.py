@@ -14,8 +14,8 @@ from sqlalchemy.sql.expression import label, or_
 from sqlalchemy.types import Integer, Unicode
 from werkzeug.utils import secure_filename
 
+from . import __version__ as VERSION
 
-VERSION = '2022.1.11.1'
 
 HELP = f"""
 FurAffinity Private Message Downloader
