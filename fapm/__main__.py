@@ -5,7 +5,6 @@ import time
 import urllib.request
 
 import jinja2
-from dateutil import parser as dateutil_parser
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.schema import Column
@@ -15,6 +14,7 @@ from werkzeug.utils import secure_filename
 
 from . import __version__ as VERSION, is_folder, is_session_token
 from . import cli
+from . import extract
 
 
 ABOUT_COOKIES = """
@@ -53,20 +53,7 @@ SLEEP = 5
 FOLDERS = ('inbox', 'outbox', 'archive', 'trash')
 
 RE_MODERN_ID = re.compile(r'/msg/pms/\d+/(\d+)/#message')
-RE_MODERN_SUBJECT = re.compile(r'<div class="section-header">.*?<h2>(.*?)</h2>', re.DOTALL)
-RE_MODERN_TIMESTAMP = re.compile(r'<div class="section-header">.*?<strong>.+?<span.*?>(.+?)</span>', re.DOTALL)
-RE_MODERN_SENDER = re.compile(r'<div class="section-header">.*?<strong>(.+?)</strong>', re.DOTALL)
-RE_MODERN_RECEIVER = re.compile(r'<div class="section-header">.*?<strong>.+?<strong>(.+?)</strong>', re.DOTALL)
-RE_MODERN_TEXT = re.compile(r'<div class="user-submitted-links">(.*?)</div>', re.DOTALL)
-RE_MODERN_USERNAME = re.compile(r'<img class="loggedin_user_avatar .*?<a .*?>(.*?)</a>', re.DOTALL)
-
 RE_CLASSIC_ID = re.compile(r'href="/viewmessage/(\d+)/"')
-RE_CLASSIC_SUBJECT = re.compile(r'<a href="/msg/compose/">.*?<b>(.*?)</b>', re.DOTALL)
-RE_CLASSIC_TIMESTAMP = re.compile(r'<a href="/msg/compose/">.*? class="popup_date">(.+?)</span>', re.DOTALL)
-RE_CLASSIC_SENDER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?>(.+?)</a>', re.DOTALL)
-RE_CLASSIC_RECEIVER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?<a .*?>(.+?)</a>', re.DOTALL)
-RE_CLASSIC_TEXT = re.compile(r'<a href="/msg/compose/">.*? class="popup_date">.*?<br/><br/>(.+?)</td>', re.DOTALL)
-RE_CLASSIC_USERNAME = re.compile(r'<a id="my-username".*?\~(.*?)</a>', re.DOTALL)
 
 RE_QUOTE_START = re.compile(r'\[QUOTE\]', re.IGNORECASE)
 RE_QUOTE_END = re.compile(r'\[/QUOTE\]', re.IGNORECASE)
@@ -120,12 +107,12 @@ class Message(Model):
 
     def __init__(self, html=None, *args, **kwargs):
         if html:
-            kwargs['subject'] = extract_subject(html)
-            kwargs['timestamp'] = extract_timestamp(html)
-            kwargs['sender'] = extract_sender(html)
-            kwargs['receiver'] = extract_receiver(html)
-            kwargs['text'] = extract_text(html)
-            kwargs['sent'] = 1 if extract_own_username(html) == kwargs['sender'] else 0
+            kwargs['subject'] = extract.subject(html)
+            kwargs['timestamp'] = extract.timestamp(html)
+            kwargs['sender'] = extract.sender(html)
+            kwargs['receiver'] = extract.receiver(html)
+            kwargs['text'] = extract.text(html)
+            kwargs['sent'] = 1 if extract.username(html) == kwargs['sender'] else 0
 
         super().__init__(*args, **kwargs)
 
@@ -174,41 +161,6 @@ class Message(Model):
             text = text.replace(smilie[0], smilie[1 if cli.args.no_emojis else 2])
 
         return text
-
-
-def _extract(html, re_modern, re_classic, required_name=False):
-    match = re_modern.search(html) or re_classic.search(html)
-
-    if required_name and not match:
-        cli.die(f'cannot extract {required_name}')
-
-    return match.group(1).strip()
-
-
-def extract_subject(html):
-    return _extract(html, RE_MODERN_SUBJECT, RE_CLASSIC_SUBJECT) or None
-
-
-def extract_timestamp(html):
-    match = _extract(html, RE_MODERN_TIMESTAMP, RE_CLASSIC_TIMESTAMP, 'timestamp')
-    return int(dateutil_parser.parse(match).timestamp())
-
-
-def extract_sender(html):
-    return _extract(html, RE_MODERN_SENDER, RE_CLASSIC_SENDER, 'sender')
-
-
-def extract_receiver(html):
-    return _extract(html, RE_MODERN_RECEIVER, RE_CLASSIC_RECEIVER, 'receiver')
-
-
-def extract_text(html):
-    match = _extract(html, RE_MODERN_TEXT, RE_CLASSIC_TEXT, 'text')
-    return match.replace('\n', '').replace('\r', '').strip()
-
-
-def extract_own_username(html):
-    return _extract(html, RE_MODERN_USERNAME, RE_CLASSIC_USERNAME, 'username')
 
 
 def query_contacts():
