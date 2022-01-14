@@ -261,33 +261,14 @@ def extract_own_username(html):
     return _extract(html, RE_MODERN_USERNAME, RE_CLASSIC_USERNAME, 'username')
 
 
-def query_own_username():
-    sender = db_session.query(Message.sender) \
-      .filter_by(sent=1) \
-      .limit(1) \
-      .scalar()
-
-    if sender is None:
-        receiver = db_session.query(Message.receiver) \
-          .filter_by(sent=0) \
-          .limit(1) \
-          .scalar()
-
-    # If the database contains no messages, this will return None.
-    return sender or receiver
-
-
-def query_contacts(own_username=None):
-    if own_username is None:
-        own_username = query_own_username()
-
+def query_contacts():
     senders = db_session \
       .query(label('username', Message.sender)) \
-      .filter(Message.sender != own_username)
+      .filter_by(sent=0)
 
     receivers = db_session \
       .query(label('username', Message.receiver)) \
-      .filter(Message.receiver != own_username)
+      .filter_by(sent=1)
 
     usernames = senders.union(receivers).distinct()
     key = lambda username: username.lower()
