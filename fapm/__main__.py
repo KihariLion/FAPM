@@ -5,8 +5,6 @@ import time
 import urllib.request
 
 import jinja2
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.schema import Column
 from sqlalchemy.sql.expression import label, or_
 from sqlalchemy.types import Integer, Unicode
@@ -14,6 +12,7 @@ from werkzeug.utils import secure_filename
 
 from . import __version__ as VERSION, is_folder, is_session_token
 from . import cli
+from . import db
 from . import extract
 
 
@@ -90,10 +89,7 @@ SMILIE_REPLACEMENTS = (
   ('<i class="smilie zipped"></i>', ':zipped:', '&#129296;'))
 
 
-Model = declarative_base()
-
-
-class Message(Model):
+class Message(db.Model):
     __tablename__ = 'message'
 
     id_ = Column('id', Integer, primary_key=True)
@@ -196,11 +192,8 @@ def download_message(id_, folder, uuid_a, uuid_b):
     return Message(html=html, id_=id_, folder=folder)
 
 
-db_engine = create_engine('sqlite:///messages.db')
-Model.metadata.bind = db_engine
-Model.metadata.create_all()
-db_sessionmaker = sessionmaker(db_engine)
-db_session = scoped_session(db_sessionmaker)
+db.Model.metadata.create_all()
+db_session = db.Session()
 
 if cli.args.update:
     uuid_a = cli.args.a if cli.args.a and is_session_token(cli.args.a) else None
