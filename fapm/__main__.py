@@ -1,4 +1,3 @@
-import argparse
 import os
 import re
 import sys
@@ -15,36 +14,8 @@ from sqlalchemy.types import Integer, Unicode
 from werkzeug.utils import secure_filename
 
 from . import __version__ as VERSION, is_folder, is_session_token
+from . import cli
 
-
-HELP = f"""
-FurAffinity Private Message Downloader
-Version {VERSION}
-https://www.github.com/kiharilion
-
-Usage: python3 -m fapm --help
-       python3 -m fapm --version
-       python3 -m fapm [-u] [-a UUID] [-b UUID] [-f FOLDER...] [-e] [-r]
-
-Downloads private messages from FurAffinity, splits them into conversations
-with individual users, and generates an HTML document for each conversation
-that can be viewed in a web browser.
-
-Note that this script will mark all messages sent to you as having been read,
-even if you have not viewed them on FurAffinity itself.
-
-Optional Arguments:
-  -h, --help       Show this help message and exit.
-  --version        Show version number and exit.
-  -u, --update     Check for new private messages and download them.
-  -a UUID          Specify session token A instead of prompting for it.
-  -b UUID          Specify session token B instead of prompting for it.
-  -f FOLDER...     Check for new messages only in the specified folders.
-  -e, --no-emojis  Replace smilies with BBCode text.
-  -r, --keep-re    Do not strip RE: from message subjects.
-""".strip()
-
-USAGE = HELP.split('\n\n')[1]
 
 ABOUT_COOKIES = """
 In Firefox, sign into your FurAffinity account, then press SHIFT F9 to open the
@@ -64,8 +35,6 @@ trust this software and wish to continue using it.
 """.lstrip()
 
 ABOUT_UPDATE = f"""
-{USAGE}
-
 You have not downloaded any messages yet! Rerun the script with the --update
 option enabled. See --help for more information.
 """.strip()
@@ -134,23 +103,6 @@ SMILIE_REPLACEMENTS = (
   ('<i class="smilie zipped"></i>', ':zipped:', '&#129296;'))
 
 
-# Change ArgumentParser's output formatting.
-class ArgumentParser(argparse.ArgumentParser):
-    def print_help(self):
-        print(HELP)
-
-    def error(self, message):
-        die(message, 64, True)
-
-
-def die(message, exit_code=1, show_usage=False):
-    if show_usage:
-        print(USAGE, end='\n\n')
-
-    print(f'\033[1m{arg_parser.prog}: \033[31merror: \033[0m{message}')
-    sys.exit(exit_code)
-
-
 Model = declarative_base()
 
 
@@ -199,7 +151,7 @@ class Message(Model):
         return time.strftime(pattern, time.localtime(self.timestamp))
 
     def subject_format(self):
-        if args.keep_re:
+        if cli.args.keep_re:
             return self.subject
 
         subject = self.subject
@@ -219,7 +171,7 @@ class Message(Model):
         text = RE_QUOTE_END.sub('</span>', text)
 
         for smilie in SMILIE_REPLACEMENTS:
-            text = text.replace(smilie[0], smilie[1 if args.no_emojis else 2])
+            text = text.replace(smilie[0], smilie[1 if cli.args.no_emojis else 2])
 
         return text
 
@@ -228,7 +180,7 @@ def _extract(html, re_modern, re_classic, required_name=False):
     match = re_modern.search(html) or re_classic.search(html)
 
     if required_name and not match:
-        die(f'cannot extract {required_name}')
+        cli.die(f'cannot extract {required_name}')
 
     return match.group(1).strip()
 
@@ -273,28 +225,6 @@ def query_contacts():
     return sorted((username for username, in usernames), key=key)
 
 
-def prompt_session_token(name):
-    value = input(f'UUID for session token {name}: ').strip()
-
-    # Checking that the token is a valid UUID helps ensure that the user
-    # entered the correct value.
-    return value if is_session_token(value) else None
-
-
-def validate_folder(value):
-    if not is_folder(value.lower()):
-        raise argparse.ArgumentTypeError(f'invalid folder name: {value}')
-
-    return value.lower()
-
-
-def validate_session_token(value):
-    if not is_session_token(value):
-        raise argparse.ArgumentTypeError(f'invalid session token: {value}')
-
-    return value
-
-
 def download_ids(folder, page, uuid_a, uuid_b):
     request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/{page}/')
     request.add_header('Cookie', f'a={uuid_a}; b={uuid_b}; folder={folder}')
@@ -314,40 +244,30 @@ def download_message(id_, folder, uuid_a, uuid_b):
     return Message(html=html, id_=id_, folder=folder)
 
 
-arg_parser = ArgumentParser(prog='fapm')
-arg_parser.add_argument('--version', action='version', version=VERSION)
-arg_parser.add_argument('-u', '--update', action='store_true')
-arg_parser.add_argument('-a', type=validate_session_token)
-arg_parser.add_argument('-b', type=validate_session_token)
-arg_parser.add_argument('-f', nargs='+', type=validate_folder)
-arg_parser.add_argument('-e', '--no-emojis', action='store_true')
-arg_parser.add_argument('-r', '--keep-re', action='store_true')
-args = arg_parser.parse_args()
-
 db_engine = create_engine('sqlite:///messages.db')
 Model.metadata.bind = db_engine
 Model.metadata.create_all()
 db_sessionmaker = sessionmaker(db_engine)
 db_session = scoped_session(db_sessionmaker)
 
-if args.update:
-    uuid_a = args.a if args.a and is_session_token(args.a) else None
-    uuid_b = args.b if args.b and is_session_token(args.b) else None
+if cli.args.update:
+    uuid_a = cli.args.a if cli.args.a and is_session_token(cli.args.a) else None
+    uuid_b = cli.args.b if cli.args.b and is_session_token(cli.args.b) else None
     need_session_tokens = uuid_a is None or uuid_b is None
 
     if need_session_tokens:
         print(ABOUT_COOKIES)
 
     while uuid_a is None:
-        uuid_a = prompt_session_token('A')
+        uuid_a = cli.prompt_session_token('A')
 
     while uuid_b is None:
-        uuid_b = prompt_session_token('B')
+        uuid_b = cli.prompt_session_token('B')
 
     if need_session_tokens:
         print()
 
-    folders = tuple(set(args.f)) if args.f else None
+    folders = tuple(set(cli.args.f)) if cli.args.f else None
     new_message_count = 0
 
     for folder in folders or FOLDERS:
@@ -388,7 +308,7 @@ except OSError:
 contacts = query_contacts()
 messages_for_index = []
 
-if not args.update and not contacts:
+if not cli.args.update and not contacts:
     sys.exit(ABOUT_UPDATE)
 
 print(f'Formatting conversations with {len(contacts):,} contacts')
@@ -405,5 +325,5 @@ with open('index.html', 'w') as file_:
 
 db_session.close()
 
-if args.update:
+if cli.args.update:
     print(ABOUT_LOG_OUT)
