@@ -109,20 +109,6 @@ class Message(db.Model):
     def contact(self):
         return self.receiver if self.sent else self.sender
 
-    @classmethod
-    def newest_in_folder(cls, folder):
-        return db_session.query(cls) \
-          .filter_by(folder=folder) \
-          .order_by(cls.id_.desc()) \
-          .first()
-
-    @classmethod
-    def conversation_with(cls, username):
-        return db_session.query(cls) \
-          .filter(or_(cls.sender == username, cls.receiver == username)) \
-          .order_by(cls.id_) \
-          .all()
-
     def timestamp_format(self, pattern='%Y-%m-%d %H:%M'):
         return time.strftime(pattern, time.localtime(self.timestamp))
 
@@ -150,6 +136,21 @@ class Message(db.Model):
             text = text.replace(smilie[0], smilie[1 if cli.args.no_emojis else 2])
 
         return text
+
+
+def query_newest_id(folder):
+    return db_session.query(Message.id_) \
+      .filter_by(folder=folder) \
+      .order_by(Message.id_.desc()) \
+      .limit(1) \
+      .scalar()
+
+
+def query_conversation(username):
+    return db_session.query(Message) \
+      .filter(or_(Message.sender == username, Message.receiver == username)) \
+      .order_by(Message.id_) \
+      .all()
 
 
 def query_contacts():
@@ -211,11 +212,11 @@ if cli.args.update:
     for folder in folders:
         page = 1
         ids = download_ids(folder, page, uuid_a, uuid_b)
-        newest_known = Message.newest_in_folder(folder)
+        newest_id = query_newest_id(folder)
 
         while ids:
             for id_ in ids:
-                if newest_known and id_ <= newest_known.id_:
+                if newest_id and id_ <= newest_id:
                     ids = None
                     break
 
@@ -252,7 +253,7 @@ if not contacts:
 print(f'Formatting conversations with {len(contacts):,} contacts')
 
 for contact in contacts:
-    messages = Message.conversation_with(contact)
+    messages = query_conversation(contact)
     messages_for_index.append(messages[-1])
 
     with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
