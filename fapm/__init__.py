@@ -16,4 +16,4 @@ def is_folder(value):
 
 
 def is_session_token(value):
-    return RE_SESSION_TOKEN.match(value) is not None
+    return isinstance(value, str) and RE_SESSION_TOKEN.match(value) is not None
