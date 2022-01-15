@@ -1,6 +1,6 @@
 __author__ = 'Kihari'
 __license__ = 'BSD'
-__version__ = '2022.1.11.1'
+__version__ = '2022.1.14.0'
 
 
 import re
