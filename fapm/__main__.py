@@ -47,7 +47,7 @@ RE_CLASSIC_ID = re.compile(r'href="/viewmessage/(\d+)/"')
 
 
 def query_newest_id(folder):
-    return db_session.query(Message.id_) \
+    return session.query(Message.id_) \
       .filter_by(folder=folder) \
       .order_by(Message.id_.desc()) \
       .limit(1) \
@@ -55,18 +55,18 @@ def query_newest_id(folder):
 
 
 def query_conversation(username):
-    return db_session.query(Message) \
+    return session.query(Message) \
       .filter(or_(Message.sender == username, Message.receiver == username)) \
       .order_by(Message.id_) \
       .all()
 
 
 def query_contacts():
-    senders = db_session \
+    senders = session \
       .query(label('username', Message.sender)) \
       .filter_by(sent=0)
 
-    receivers = db_session \
+    receivers = session \
       .query(label('username', Message.receiver)) \
       .filter_by(sent=1)
 
@@ -95,82 +95,80 @@ def download_message(id_, folder, uuid_a, uuid_b):
 
 
 db.Model.metadata.create_all()
-db_session = db.Session()
 
-if cli.args.update:
-    uuid_a = cli.args.a if cli.args.a and is_session_token(cli.args.a) else None
-    uuid_b = cli.args.b if cli.args.b and is_session_token(cli.args.b) else None
-    need_session_tokens = uuid_a is None or uuid_b is None
+with db.Session() as session:
+    if cli.args.update:
+        uuid_a = cli.args.a if cli.args.a and is_session_token(cli.args.a) else None
+        uuid_b = cli.args.b if cli.args.b and is_session_token(cli.args.b) else None
+        need_session_tokens = uuid_a is None or uuid_b is None
 
-    if need_session_tokens:
-        print(ABOUT_COOKIES)
+        if need_session_tokens:
+            print(ABOUT_COOKIES)
 
-    while uuid_a is None:
-        uuid_a = cli.prompt_session_token('A')
+        while uuid_a is None:
+            uuid_a = cli.prompt_session_token('A')
 
-    while uuid_b is None:
-        uuid_b = cli.prompt_session_token('B')
+        while uuid_b is None:
+            uuid_b = cli.prompt_session_token('B')
 
-    if need_session_tokens:
-        print()
+        if need_session_tokens:
+            print()
 
-    folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
-    new_message_count = 0
+        folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
+        new_message_count = 0
 
-    for folder in folders:
-        page = 1
-        ids = download_ids(folder, page, uuid_a, uuid_b)
-        newest_id = query_newest_id(folder)
+        for folder in folders:
+            page = 1
+            ids = download_ids(folder, page, uuid_a, uuid_b)
+            newest_id = query_newest_id(folder)
 
-        while ids:
-            for id_ in ids:
-                if newest_id and id_ <= newest_id:
-                    ids = None
-                    break
+            while ids:
+                for id_ in ids:
+                    if newest_id and id_ <= newest_id:
+                        ids = None
+                        break
 
-                message = download_message(id_, folder, uuid_a, uuid_b)
-                print(f'{message.timestamp_format()} [{folder.title()}] {message.subject}')
-                db_session.add(message)
-                new_message_count += 1
-                time.sleep(SLEEP)
+                    message = download_message(id_, folder, uuid_a, uuid_b)
+                    print(f'{message.timestamp_format()} [{folder.title()}] {message.subject}')
+                    session.add(message)
+                    new_message_count += 1
+                    time.sleep(SLEEP)
 
-            if ids:
-                page += 1
-                ids = download_ids(folder, page, uuid_a, uuid_b)
+                if ids:
+                    page += 1
+                    ids = download_ids(folder, page, uuid_a, uuid_b)
 
-    print(f'{new_message_count:,} new message{"" if new_message_count == 1 else "s"} downloaded')
-    db_session.commit()
+        print(f'{new_message_count:,} new message{"" if new_message_count == 1 else "s"} downloaded')
+        session.commit()
 
-jinja_loader = jinja2.FileSystemLoader('templates')
-jinja_env = jinja2.Environment(loader=jinja_loader, autoescape=True)
-jinja_env.globals.update(secure_filename=secure_filename)
-index_template = jinja_env.get_template('index.html')
-conversation_template = jinja_env.get_template('conversation.html')
+    jinja_loader = jinja2.FileSystemLoader('templates')
+    jinja_env = jinja2.Environment(loader=jinja_loader, autoescape=True)
+    jinja_env.globals.update(secure_filename=secure_filename)
+    index_template = jinja_env.get_template('index.html')
+    conversation_template = jinja_env.get_template('conversation.html')
 
-try:
-    os.mkdir('html')
-except OSError:
-    pass
+    try:
+        os.mkdir('html')
+    except OSError:
+        pass
 
-contacts = query_contacts()
-messages_for_index = []
+    contacts = query_contacts()
+    messages_for_index = []
 
-if not contacts:
-    sys.exit('No conversations to format')
+    if not contacts:
+        sys.exit('No conversations to format')
 
-print(f'Formatting conversations with {len(contacts):,} contacts')
+    print(f'Formatting conversations with {len(contacts):,} contacts')
 
-for contact in contacts:
-    messages = query_conversation(contact)
-    messages_for_index.append(messages[-1])
+    for contact in contacts:
+        messages = query_conversation(contact)
+        messages_for_index.append(messages[-1])
 
-    with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
-        file_.write(conversation_template.render(contact=contact, messages=messages))
+        with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
+            file_.write(conversation_template.render(contact=contact, messages=messages))
 
-with open('index.html', 'w') as file_:
-    file_.write(index_template.render(messages=messages_for_index))
+    with open('index.html', 'w') as file_:
+        file_.write(index_template.render(messages=messages_for_index))
 
-db_session.close()
-
-if cli.args.update:
-    print(ABOUT_LOG_OUT)
+    if cli.args.update:
+        print(ABOUT_LOG_OUT)
