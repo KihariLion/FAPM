@@ -40,7 +40,7 @@ folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
 
 
 def _get_ids(folder, page):
-    print(f'Enumerating messages in {folder.title()}, page {page:,}')
+    print(f'Scanning messages in {folder.title()}, page {page:,}')
     request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/{page}/')
     request.add_header('Cookie', f'a={token_a}; b={token_b}; folder={folder}')
     request.add_header('Host', 'www.furaffinity.net')

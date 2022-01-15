@@ -13,6 +13,14 @@ def message_index():
     return {key:value for key, value in messages}
 
 
+def move_message(id_, folder):
+    with db.Session() as session:
+        message = session.query(Message).get(id_)
+        message.folder = folder
+        session.add(message)
+        session.commit()
+
+
 def contacts():
     with db.Session() as session:
         senders = session \
