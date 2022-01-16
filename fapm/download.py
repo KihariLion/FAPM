@@ -1,5 +1,6 @@
 import re
 import time
+import urllib.parse
 import urllib.request
 
 from . import __version__ as VERSION, FOLDERS, is_session_token
@@ -25,7 +26,10 @@ trust this software and wish to continue using it.
 """.lstrip()
 
 RE_MODERN_ID = re.compile(r'/msg/pms/\d+/(\d+)/#message')
+RE_MODERN_UNREAD = re.compile(r'<a class=".*?note-unread.*?" href="/msg/pms/\d+/(\d+)/#message')
+
 RE_CLASSIC_ID = re.compile(r'href="/viewmessage/(\d+)/"')
+RE_CLASSIC_UNREAD = re.compile(r'<input .*? value="(\d+)" />\s*<img class="unread')
 
 # The number of seconds to pause after each HTTP request. Do not change this
 # value to a smaller number! Clobbering FurAffinity's servers hurts us all.
@@ -90,3 +94,18 @@ def get_message(id_, folder):
     html = urllib.request.urlopen(request).read().decode()
     time.sleep(SLEEP)
     return Message(html=html, id_=id_, folder=folder)
+
+
+# The folder parameter is probably not necessary, but more research is needed.
+# For now, call this function for each folder that contains unread messages,
+# and only for messages that were received by the user.
+def mark_unread(ids, folder):
+    print(f'Marking unread messages in {folder.title()}')
+    data = [('manage_notes', 1), ('move_to', 'unread')]
+    data.extend(('items[]', id_) for id_ in ids)
+    request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/', data=urllib.parse.urlencode(data).encode())
+    request.add_header('Cookie', f'a={token_a}; b={token_b}; folder={folder}')
+    request.add_header('Host', 'www.furaffinity.net')
+    request.add_header('User-Agent', f'FAPM/{VERSION}')
+    urllib.request.urlopen(request)
+    time.sleep(SLEEP)
