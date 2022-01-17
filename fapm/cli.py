@@ -17,9 +17,6 @@ Downloads private messages from FurAffinity, splits them into conversations
 with individual users, and generates an HTML document for each conversation
 that can be viewed in a web browser.
 
-Note that this script will mark all messages sent to you as having been read,
-even if you have not viewed them on FurAffinity itself.
-
 Optional Arguments:
   -h, --help       Show this help message and exit.
   --version        Show version number and exit.
