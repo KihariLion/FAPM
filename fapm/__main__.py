@@ -24,22 +24,22 @@ db.Model.metadata.create_all()
 
 if cli.args.update:
     download.prompt_session_tokens()
-    new_message_index = download.message_index()
-    old_message_index = query.message_index()
-    moved_messages = {id_: folder for id_, folder in new_message_index.items() if id_ in old_message_index and old_message_index[id_] != folder}
-    unsaved_messages = {id_: folder for id_, folder in new_message_index.items() if id_ not in old_message_index}
+    local_messages = query.message_index()
+    online_messages = download.message_index()
+    new_messages = {id_: folder for id_, folder in online_messages.items() if id_ not in local_messages}
+    moved_messages = {id_: folder for id_, folder in online_messages.items() if id_ in local_messages and local_messages[id_] != folder}
 
     if moved_messages:
-        print(f'Updating {noun(len(moved_messages), "message", "messages")} moved to another folder')
+        print(f'Updating {noun(len(moved_messages), "message", "messages")} moved to other folders')
 
         for id_, folder in moved_messages.items():
             query.move_message(id_, folder)
 
-    if unsaved_messages:
-        print(f'Found {noun(len(unsaved_messages), "message", "messages")} not in database')
+    if new_messages:
+        print(f'Found {noun(len(new_messages), "message", "messages")} not in database')
 
         with db.Session() as session:
-            for id_, folder in unsaved_messages.items():
+            for id_, folder in new_messages.items():
                 message = download.get_message(id_, folder)
                 print(f'Downloaded message [{message.timestamp_format()}] {message.subject or "No Subject"}')
                 session.add(message)
