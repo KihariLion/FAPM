@@ -24,10 +24,12 @@ db.Model.metadata.create_all()
 
 if cli.args.update:
     download.prompt_session_tokens()
+
     local_messages = query.message_index()
     online_messages = download.message_index()
     new_messages = {id_: folder for id_, folder in online_messages.items() if id_ not in local_messages}
     moved_messages = {id_: folder for id_, folder in online_messages.items() if id_ in local_messages and local_messages[id_] != folder}
+    unread_messages = {'inbox': [], 'trash': [], 'archive': []}
 
     if moved_messages:
         print(f'Updating {noun(len(moved_messages), "message", "messages")} moved to other folders')
@@ -42,10 +44,19 @@ if cli.args.update:
             for id_, folder in new_messages.items():
                 message = download.get_message(id_, folder)
                 print(f'Downloaded message [{message.timestamp_format()}] {message.subject or "No Subject"}')
+
+                if id_ in download.unread_messages and not message.sent:
+                    unread_messages[folder].append(id_)
+
                 session.add(message)
 
             session.commit()
             print('Finished downloading messages')
+
+        for folder in unread_messages:
+            if unread_messages[folder]:
+                print(f'Marking {noun(len(unread_messages[folder]), "unread message", "unread messages")} in {folder.title()} as such')
+                download.mark_unread(unread_messages[folder], folder)
 
     else:
         print('No new messages to download')

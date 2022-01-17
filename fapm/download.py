@@ -29,7 +29,7 @@ RE_MODERN_ID = re.compile(r'/msg/pms/\d+/(\d+)/#message')
 RE_MODERN_UNREAD = re.compile(r'<a class=".*?note-unread.*?" href="/msg/pms/\d+/(\d+)/#message')
 
 RE_CLASSIC_ID = re.compile(r'href="/viewmessage/(\d+)/"')
-RE_CLASSIC_UNREAD = re.compile(r'<input .*? value="(\d+)" />\s*<img class="unread')
+RE_CLASSIC_UNREAD = re.compile(r'<a class=".*?note-unread.*?" href="/viewmessage/(\d+)/"')
 
 # The number of seconds to pause after each HTTP request. Do not change this
 # value to a smaller number! Clobbering FurAffinity's servers hurts us all.
@@ -42,6 +42,8 @@ token_a = cli.args.a if cli.args.a and is_session_token(cli.args.a) else None
 token_b = cli.args.b if cli.args.b and is_session_token(cli.args.b) else None
 folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
 
+unread_messages = []
+
 
 def _get_ids(folder, page):
     print(f'Scanning messages in {folder.title()}, page {page:,}')
@@ -51,8 +53,8 @@ def _get_ids(folder, page):
     request.add_header('User-Agent', f'FAPM/{VERSION}')
     html = urllib.request.urlopen(request).read().decode()
     time.sleep(SLEEP)
-    ids = RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html)
-    return [int(id_) for id_ in ids]
+    unread_messages.extend(int(id_) for id_ in (RE_MODERN_UNREAD.findall(html) or RE_CLASSIC_UNREAD.findall(html)))
+    return [int(id_) for id_ in (RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html))]
 
 
 def prompt_session_tokens():
@@ -100,7 +102,6 @@ def get_message(id_, folder):
 # For now, call this function for each folder that contains unread messages,
 # and only for messages that were received by the user.
 def mark_unread(ids, folder):
-    print(f'Marking unread messages in {folder.title()}')
     data = [('manage_notes', 1), ('move_to', 'unread')]
     data.extend(('items[]', id_) for id_ in ids)
     request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/', data=urllib.parse.urlencode(data).encode())
