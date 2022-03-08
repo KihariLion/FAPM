@@ -30,7 +30,7 @@ def prompt_session_token(name):
 
 
 def folder_argument(value):
-    if not is_folder(value.lower()):
+    if value.lower() not in FOLDERS:
         raise argparse.ArgumentTypeError(f'invalid folder: {value}')
 
     return value.lower()
@@ -53,10 +53,6 @@ def page_argument(value):
         raise argparse.ArgumentTypeError(f'invalid page number: {value}')
 
     return value
-
-
-def is_folder(value):
-    return value in FOLDERS
 
 
 def is_uuid(value):
