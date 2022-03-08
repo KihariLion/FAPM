@@ -16,8 +16,8 @@ invalidate the session cookies you provided to this script.
 """.rstrip()
 
 
-def noun(count, singular, plural):
-    return f'{count:,} {singular if count == 1 else plural}'
+def pluralize(count, singular, plural=None):
+    return f'{count:,} {singular if count == 1 else plural or singular + "s"}'
 
 
 db.Model.metadata.create_all()
@@ -32,13 +32,13 @@ if cli.args.update:
     unread_messages = {'inbox': [], 'trash': [], 'archive': []}
 
     if moved_messages:
-        print(f'Updating {noun(len(moved_messages), "message", "messages")} moved to other folders')
+        print(f'Updating {pluralize(len(moved_messages), "message")} moved to other folders')
 
         for id_, folder in moved_messages.items():
             query.move_message(id_, folder)
 
     if new_messages:
-        print(f'Found {noun(len(new_messages), "message", "messages")} not in database')
+        print(f'Found {pluralize(len(new_messages), "message")} not in database')
 
         with db.Session() as session:
             for id_, folder in new_messages.items():
@@ -55,7 +55,7 @@ if cli.args.update:
 
         for folder in unread_messages:
             if unread_messages[folder]:
-                print(f'Marking {noun(len(unread_messages[folder]), "unread message", "unread messages")} in {folder.title()} as such')
+                print(f'Marking {pluralize(len(unread_messages[folder]), "unread message")} in {folder.title()} as such')
                 download.mark_unread(unread_messages[folder], folder)
 
     else:
@@ -78,7 +78,7 @@ messages_for_index = []
 if not contacts:
     sys.exit('No conversations to format')
 
-print(f'Formatting conversations with {noun(len(contacts), "contact", "contacts")}')
+print(f'Formatting conversations with {pluralize(len(contacts), "contact")}')
 
 for contact in contacts:
     messages = query.conversation(contact)
