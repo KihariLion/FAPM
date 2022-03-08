@@ -3,14 +3,28 @@ import time
 
 from sqlalchemy.schema import Column
 from sqlalchemy.types import Integer, Unicode
+from dateutil import parser as dateutil_parser
 
 from . import cli
 from . import db
-from . import extract
 
 
 RE_QUOTE_START = re.compile(r'\[QUOTE\]', re.IGNORECASE)
 RE_QUOTE_END = re.compile(r'\[/QUOTE\]', re.IGNORECASE)
+
+RE_MODERN_SUBJECT = re.compile(r'<div class="section-header">.*?<h2>(.*?)</h2>', re.DOTALL)
+RE_MODERN_TIMESTAMP = re.compile(r'<div class="section-header">.*?<strong>.+?<span.*?>(.+?)</span>', re.DOTALL)
+RE_MODERN_SENDER = re.compile(r'<div class="section-header">.*?<strong>(.+?)</strong>', re.DOTALL)
+RE_MODERN_RECEIVER = re.compile(r'<div class="section-header">.*?<strong>.+?<strong>(.+?)</strong>', re.DOTALL)
+RE_MODERN_TEXT = re.compile(r'<div class="user-submitted-links">(.*?)</div>', re.DOTALL)
+RE_MODERN_USERNAME = re.compile(r'<img class="loggedin_user_avatar .*?<a .*?>(.*?)</a>', re.DOTALL)
+
+RE_CLASSIC_SUBJECT = re.compile(r'<a href="/msg/compose/">.*?<b>(.*?)</b>', re.DOTALL)
+RE_CLASSIC_TIMESTAMP = re.compile(r'<a href="/msg/compose/">.*? class="popup_date">(.+?)</span>', re.DOTALL)
+RE_CLASSIC_SENDER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?>(.+?)</a>', re.DOTALL)
+RE_CLASSIC_RECEIVER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?<a .*?>(.+?)</a>', re.DOTALL)
+RE_CLASSIC_TEXT = re.compile(r'<a href="/msg/compose/">.*? class="popup_date">.*?<br/><br/>(.+?)</td>', re.DOTALL)
+RE_CLASSIC_USERNAME = re.compile(r'<a id="my-username".*?\~(.*?)</a>', re.DOTALL)
 
 SMILIE_REPLACEMENTS = (
   ('<i class="smilie tongue"></i>', ':-p', '&#128539;'),
@@ -44,6 +58,56 @@ SMILIE_REPLACEMENTS = (
   ('<i class="smilie zipped"></i>', ':zipped:', '&#129296;'))
 
 
+def extract_subject(html):
+    match = RE_MODERN_SUBJECT.search(html) or RE_CLASSIC_SUBJECT.search(html)
+    return match.group(1).strip() or None
+
+
+def extract_timestamp(html):
+    match = RE_MODERN_TIMESTAMP.search(html) or RE_CLASSIC_TIMESTAMP.search(html)
+
+    if match is None:
+        cli.die('cannot extract message timestamp')
+
+    return int(dateutil_parser.parse(match.group(1)).timestamp())
+
+
+def extract_sender(html):
+    match = RE_MODERN_SENDER.search(html) or RE_CLASSIC_SENDER.search(html)
+
+    if match is None:
+        cli.die('cannot extract message sender')
+
+    return match.group(1).strip()
+
+
+def extract_receiver(html):
+    match = RE_MODERN_RECEIVER.search(html) or RE_CLASSIC_RECEIVER.search(html)
+
+    if match is None:
+        cli.die('cannot extract message receiver')
+
+    return match.group(1).strip()
+
+
+def extract_text(html):
+    match = RE_MODERN_TEXT.search(html) or RE_CLASSIC_TEXT.search(html)
+
+    if match is None:
+        cli.die('cannot extract message text')
+
+    return match.group(1).replace('\n', '').replace('\r', '').strip()
+
+
+def extract_username(html):
+    match = RE_MODERN_USERNAME.search(html) or RE_CLASSIC_USERNAME.search(html)
+
+    if match is None:
+        cli.die('cannot extract username')
+
+    return match.group(1).strip()
+
+
 class Message(db.Model):
     __tablename__ = 'message'
 
@@ -58,12 +122,12 @@ class Message(db.Model):
 
     def __init__(self, html=None, *args, **kwargs):
         if html:
-            kwargs['subject'] = extract.subject(html)
-            kwargs['timestamp'] = extract.timestamp(html)
-            kwargs['sender'] = extract.sender(html)
-            kwargs['receiver'] = extract.receiver(html)
-            kwargs['text'] = extract.text(html)
-            kwargs['sent'] = 1 if extract.username(html) == kwargs['sender'] else 0
+            kwargs['subject'] = extract_subject(html)
+            kwargs['timestamp'] = extract_timestamp(html)
+            kwargs['sender'] = extract_sender(html)
+            kwargs['receiver'] = extract_receiver(html)
+            kwargs['text'] = extract_text(html)
+            kwargs['sent'] = 1 if extract_username(html) == kwargs['sender'] else 0
 
         super().__init__(*args, **kwargs)
 
