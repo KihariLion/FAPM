@@ -32,7 +32,7 @@ def folder_argument(value):
 
 
 def uuid_argument(value):
-    if not is_uuid(value):
+    if not RE_UUID.match(value):
         raise argparse.ArgumentTypeError(f'invalid session token: {value}')
 
     return value
@@ -48,10 +48,6 @@ def page_argument(value):
         raise argparse.ArgumentTypeError(f'invalid page number: {value}')
 
     return value
-
-
-def is_uuid(value):
-    return isinstance(value, str) and RE_UUID.match(value) is not None
 
 
 arg_parser = ArgumentParser(prog='fapm')

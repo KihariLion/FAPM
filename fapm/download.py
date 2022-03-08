@@ -8,8 +8,12 @@ from .constants import *
 from .message import Message
 
 
-token_a = cli.args.a if cli.args.a and cli.is_uuid(cli.args.a) else None
-token_b = cli.args.b if cli.args.b and cli.is_uuid(cli.args.b) else None
+def is_uuid(value):
+    return isinstance(value, str) and RE_UUID.match(value)
+
+
+token_a = cli.args.a if is_uuid(cli.args.a) else None
+token_b = cli.args.b if is_uuid(cli.args.b) else None
 unread_messages = []
 
 
@@ -20,10 +24,10 @@ def prompt_session_tokens():
     if token_a is None or token_b is None:
         print(ABOUT_COOKIES)
 
-        while not cli.is_uuid(token_a):
+        while not is_uuid(token_a):
             token_a = input(f'UUID for session token A: ').strip()
 
-        while not cli.is_uuid(token_b):
+        while not is_uuid(token_b):
             token_b = input(f'UUID for session token B: ').strip()
 
         print()
