@@ -15,6 +15,22 @@ folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
 unread_messages = []
 
 
+def prompt_session_tokens():
+    global token_a
+    global token_b
+
+    if token_a is None or token_b is None:
+        print(ABOUT_COOKIES)
+
+        while not cli.is_uuid(token_a):
+            token_a = input(f'UUID for session token A: ').strip()
+
+        while not cli.is_uuid(token_b):
+            token_b = input(f'UUID for session token B: ').strip()
+
+        print()
+
+
 def http_request(url, headers=None, data=None, html=False):
     if data:
         data = urllib.parse.urlencode(data).encode()
@@ -41,22 +57,6 @@ def http_request(url, headers=None, data=None, html=False):
 
     time.sleep(HTTP_SLEEP)
     return response.read().decode() if html else response
-
-
-def prompt_session_tokens():
-    global token_a
-    global token_b
-
-    if token_a is None or token_b is None:
-        print(ABOUT_COOKIES)
-
-        while not cli.is_uuid(token_a):
-            token_a = input(f'UUID for session token A: ').strip()
-
-        while not cli.is_uuid(token_b):
-            token_b = input(f'UUID for session token B: ').strip()
-
-        print()
 
 
 def get_online_index():
