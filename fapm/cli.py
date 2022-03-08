@@ -24,11 +24,6 @@ def warn(message):
     print(f'{arg_parser.prog}: warning: {message}')
 
 
-def prompt_session_token(name):
-    value = input(f'UUID for session token {name}: ').strip()
-    return value if is_uuid(value) else None
-
-
 def folder_argument(value):
     if value.lower() not in FOLDERS:
         raise argparse.ArgumentTypeError(f'invalid folder: {value}')
