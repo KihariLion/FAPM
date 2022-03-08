@@ -3,43 +3,13 @@ import time
 import urllib.parse
 import urllib.request
 
-from . import __version__ as VERSION, FOLDERS, is_session_token
 from . import cli
+from .constants import *
 from .message import Message
 
 
-ABOUT_COOKIES = """
-In Firefox, sign into your FurAffinity account, then press SHIFT F9 to open the
-Storage Inspector window. The cookies named A and B have values that might look
-similar to this:
-
-  abcdef01-2345-6789-abcd-ef0123456789
-
-Double-click on a value to highlight it, then press CTRL C to copy it. Paste
-each of the values into the prompt below.
-
-WARNING!
-
-When you enter your session cookie data, you will give this program complete
-control over your FurAffinity account. Only you can decide whether or not you
-trust this software and wish to continue using it.
-""".lstrip()
-
-RE_MODERN_ID = re.compile(r'/msg/pms/\d+/(\d+)/#message')
-RE_MODERN_UNREAD = re.compile(r'<a class=".*?note-unread.*?" href="/msg/pms/\d+/(\d+)/#message')
-
-RE_CLASSIC_ID = re.compile(r'href="/viewmessage/(\d+)/"')
-RE_CLASSIC_UNREAD = re.compile(r'<a class=".*?note-unread.*?" href="/viewmessage/(\d+)/"')
-
-# The number of seconds to pause after each HTTP request. Do not change this
-# value to a smaller number! Clobbering FurAffinity's servers hurts us all.
-# Be considerate to your fellow furries and be patient. You can let the script
-# run overnight if you have a lot of messages to download.
-SLEEP = 5
-
-
-token_a = cli.args.a if cli.args.a and is_session_token(cli.args.a) else None
-token_b = cli.args.b if cli.args.b and is_session_token(cli.args.b) else None
+token_a = cli.args.a if cli.args.a and cli.is_session_token(cli.args.a) else None
+token_b = cli.args.b if cli.args.b and cli.is_session_token(cli.args.b) else None
 folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
 
 unread_messages = []
@@ -64,10 +34,10 @@ def prompt_session_tokens():
     if token_a is None or token_b is None:
         print(ABOUT_COOKIES)
 
-        while not is_session_token(token_a):
+        while not cli.is_session_token(token_a):
             token_a = input(f'UUID for session token A: ').strip()
 
-        while not is_session_token(token_b):
+        while not cli.is_session_token(token_b):
             token_b = input(f'UUID for session token B: ').strip()
 
         print()

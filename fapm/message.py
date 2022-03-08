@@ -7,55 +7,7 @@ from dateutil import parser as dateutil_parser
 
 from . import cli
 from . import db
-
-
-RE_QUOTE_START = re.compile(r'\[QUOTE\]', re.IGNORECASE)
-RE_QUOTE_END = re.compile(r'\[/QUOTE\]', re.IGNORECASE)
-
-RE_MODERN_SUBJECT = re.compile(r'<div class="section-header">.*?<h2>(.*?)</h2>', re.DOTALL)
-RE_MODERN_TIMESTAMP = re.compile(r'<div class="section-header">.*?<strong>.+?<span.*?>(.+?)</span>', re.DOTALL)
-RE_MODERN_SENDER = re.compile(r'<div class="section-header">.*?<strong>(.+?)</strong>', re.DOTALL)
-RE_MODERN_RECEIVER = re.compile(r'<div class="section-header">.*?<strong>.+?<strong>(.+?)</strong>', re.DOTALL)
-RE_MODERN_TEXT = re.compile(r'<div class="user-submitted-links">(.*?)</div>', re.DOTALL)
-RE_MODERN_USERNAME = re.compile(r'<img class="loggedin_user_avatar .*?<a .*?>(.*?)</a>', re.DOTALL)
-
-RE_CLASSIC_SUBJECT = re.compile(r'<a href="/msg/compose/">.*?<b>(.*?)</b>', re.DOTALL)
-RE_CLASSIC_TIMESTAMP = re.compile(r'<a href="/msg/compose/">.*? class="popup_date">(.+?)</span>', re.DOTALL)
-RE_CLASSIC_SENDER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?>(.+?)</a>', re.DOTALL)
-RE_CLASSIC_RECEIVER = re.compile(r'<a href="/msg/compose/">.*?<a .*?<a .*?<a .*?>(.+?)</a>', re.DOTALL)
-RE_CLASSIC_TEXT = re.compile(r'<a href="/msg/compose/">.*? class="popup_date">.*?<br/><br/>(.+?)</td>', re.DOTALL)
-RE_CLASSIC_USERNAME = re.compile(r'<a id="my-username".*?\~(.*?)</a>', re.DOTALL)
-
-SMILIE_REPLACEMENTS = (
-  ('<i class="smilie tongue"></i>', ':-p', '&#128539;'),
-  ('<i class="smilie cool"></i>', ':cool:', '&#128526;'),
-  ('<i class="smilie wink"></i>', ';-)', '&#128521;'),
-  ('<i class="smilie oooh"></i>', ':-o', '&#128558;'),
-  ('<i class="smilie smile"></i>', ':-)', '&#128578;'),
-  ('<i class="smilie evil"></i>', ':evil:', '&#128520;'),
-  ('<i class="smilie huh"></i>', ':huh:', '&#128533;'),
-  ('<i class="smilie whatever"></i>', ':whatever:', '&#128535;'),
-  ('<i class="smilie angel"></i>', ':angel:', '&#128519;'),
-  ('<i class="smilie badhairday"></i>', ':badhair:', '&#128534;'),
-  ('<i class="smilie lmao"></i>', ':lmao:', '&#128518;'),
-  ('<i class="smilie cd"></i>', ':cd:', '&#128191;'),
-  ('<i class="smilie crying"></i>', ':cry:', '&#128549;'),
-  ('<i class="smilie dunno"></i>', ':idunno:', '&#128528;'),
-  ('<i class="smilie embarrassed"></i>', ':embarrassed:', '&#128522;'),
-  ('<i class="smilie gift"></i>', ':gift:', '&#127873;'),
-  ('<i class="smilie coffee"></i>', ':coffee:', '&#127866;&#65039;'),
-  ('<i class="smilie love"></i>', ':love:', '&#10084;&#65039;'),
-  ('<i class="smilie nerd"></i>', ':isanerd:', '&#129299;'),
-  ('<i class="smilie note"></i>', ':note:', '&#127925;'),
-  ('<i class="smilie derp"></i>', ':derp:', '&#129396;'),
-  ('<i class="smilie sarcastic"></i>', ':sarcastic:', '&#129320;'),
-  ('<i class="smilie serious"></i>', ':serious:', '&#128528;'),
-  ('<i class="smilie sad"></i>', ':-(', '&#128577;'),
-  ('<i class="smilie sleepy"></i>', ':sleepy:', '&#128564;'),
-  ('<i class="smilie teeth"></i>', ':teeth:', '&#128544;'),
-  ('<i class="smilie veryhappy"></i>', ':veryhappy:', '&#128515;'),
-  ('<i class="smilie yelling"></i>', ':yelling:', '&#129324;'),
-  ('<i class="smilie zipped"></i>', ':zipped:', '&#129296;'))
+from .constants import *
 
 
 def extract_subject(html):

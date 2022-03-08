@@ -8,12 +8,7 @@ from . import cli
 from . import db
 from . import download
 from . import query
-
-
-ABOUT_LOG_OUT = """
-For your security, you should log out of your FurAffinity account. This will
-invalidate the session cookies you provided to this script.
-""".rstrip()
+from .constants import *
 
 
 def pluralize(count, singular, plural=None):
