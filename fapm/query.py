@@ -4,7 +4,7 @@ from . import db
 from .message import Message
 
 
-def message_index():
+def get_database_index():
     with db.Session() as session:
         messages = session.query(Message.id_, Message.folder) \
           .order_by(Message.id_.desc()) \
@@ -21,7 +21,7 @@ def move_message(id_, folder):
         session.commit()
 
 
-def contacts():
+def get_contacts():
     with db.Session() as session:
         senders = session \
           .query(label('username', Message.sender)) \
@@ -36,7 +36,7 @@ def contacts():
     return sorted((username for username, in usernames), key=key)
 
 
-def conversation(username):
+def get_conversation(username):
     with db.Session() as session:
         return session.query(Message) \
           .filter(or_(Message.sender == username, Message.receiver == username)) \

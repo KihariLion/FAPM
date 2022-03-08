@@ -20,7 +20,7 @@ db.Model.metadata.create_all()
 if cli.args.update:
     download.prompt_session_tokens()
 
-    local_messages = query.message_index()
+    local_messages = query.get_database_index()
     online_messages = download.get_online_index()
     new_messages = {id_: folder for id_, folder in online_messages.items() if id_ not in local_messages}
     moved_messages = {id_: folder for id_, folder in online_messages.items() if id_ in local_messages and local_messages[id_] != folder}
@@ -67,7 +67,7 @@ try:
 except OSError:
     pass
 
-contacts = query.contacts()
+contacts = query.get_contacts()
 messages_for_index = []
 
 if not contacts:
@@ -76,7 +76,7 @@ if not contacts:
 print(f'Formatting conversations with {pluralize(len(contacts), "contact")}')
 
 for contact in contacts:
-    messages = query.conversation(contact)
+    messages = query.get_conversation(contact)
     messages_for_index.append(messages[-1])
 
     with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
