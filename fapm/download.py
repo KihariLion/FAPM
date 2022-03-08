@@ -43,14 +43,6 @@ def http_request(url, headers=None, data=None, html=False):
     return response.read().decode() if html else response
 
 
-def _get_ids(folder, page):
-    print(f'Scanning messages in {folder.title()}, page {page:,}')
-    headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
-    html = http_request(f'https://www.furaffinity.net/msg/pms/{page}/', headers, html=True)
-    unread_messages.extend(int(id_) for id_ in (RE_MODERN_UNREAD.findall(html) or RE_CLASSIC_UNREAD.findall(html)))
-    return [int(id_) for id_ in (RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html))]
-
-
 def prompt_session_tokens():
     global token_a
     global token_b
@@ -67,19 +59,27 @@ def prompt_session_tokens():
         print()
 
 
-def message_index():
-    message_index = {}
+def get_online_index():
+    online_index = {}
+    folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
 
     for folder in folders:
+        headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
         page = 1
-        message_ids = _get_ids(folder, page)
 
-        while message_ids:
-            message_index.update((id_, folder) for id_ in message_ids)
+        while True:
+            print(f'Scanning messages in {folder.title()}, page {page:,}')
+            html = http_request(f'https://www.furaffinity.net/msg/pms/{page}/', headers, html=True)
+            ids = [int(id_) for id_ in RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html)]
+
+            if not ids:
+                break
+
+            unread_messages.extend(int(id_) for id_ in (RE_MODERN_UNREAD.findall(html) or RE_CLASSIC_UNREAD.findall(html)))
+            online_index.update((id_, folder) for id_ in ids)
             page += 1
-            message_ids = _get_ids(folder, page)
 
-    return message_index
+    return online_index
 
 
 def get_message(id_, folder):

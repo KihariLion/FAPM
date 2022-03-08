@@ -21,7 +21,7 @@ if cli.args.update:
     download.prompt_session_tokens()
 
     local_messages = query.message_index()
-    online_messages = download.message_index()
+    online_messages = download.get_online_index()
     new_messages = {id_: folder for id_, folder in online_messages.items() if id_ not in local_messages}
     moved_messages = {id_: folder for id_, folder in online_messages.items() if id_ in local_messages and local_messages[id_] != folder}
     unread_messages = {'inbox': [], 'trash': [], 'archive': []}
