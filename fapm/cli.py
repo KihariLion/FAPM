@@ -43,6 +43,18 @@ def uuid_argument(value):
     return value
 
 
+def page_argument(value):
+    try:
+        value = int(value)
+
+        if value < 1:
+            raise ValueError
+    except ValueError:
+        raise argparse.ArgumentTypeError(f'invalid page number: {value}')
+
+    return value
+
+
 def is_folder(value):
     return value in FOLDERS
 
@@ -54,9 +66,10 @@ def is_uuid(value):
 arg_parser = ArgumentParser(prog='fapm')
 arg_parser.add_argument('--version', action='version', version=VERSION)
 arg_parser.add_argument('-u', '--update', action='store_true')
-arg_parser.add_argument('-a', type=uuid_argument)
-arg_parser.add_argument('-b', type=uuid_argument)
-arg_parser.add_argument('-f', nargs='+', type=folder_argument)
+arg_parser.add_argument('-a', metavar="UUID", type=uuid_argument)
+arg_parser.add_argument('-b', metavar="UUID", type=uuid_argument)
+arg_parser.add_argument('-f', metavar="FOLDER", type=folder_argument, nargs='+')
+arg_parser.add_argument('-p', metavar="PAGE", type=page_argument)
 arg_parser.add_argument('-e', '--no-emojis', action='store_true')
 arg_parser.add_argument('-r', '--keep-re', action='store_true')
 

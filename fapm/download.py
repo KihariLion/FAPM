@@ -65,7 +65,7 @@ def get_online_index():
         headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
         page = 1
 
-        while True:
+        while cli.args.p is None or page <= cli.args.p:
             print(f'Scanning messages in {folder.title()}, page {page:,}')
             html = http_request(f'https://www.furaffinity.net/msg/pms/{page}/', headers, html=True)
             ids = [int(id_) for id_ in RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html)]

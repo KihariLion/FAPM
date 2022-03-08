@@ -9,7 +9,7 @@ https://www.github.com/kiharilion
 
 Usage: python3 -m fapm --help
        python3 -m fapm --version
-       python3 -m fapm [-u] [-a UUID] [-b UUID] [-f FOLDER...] [-e] [-r]
+       python3 -m fapm [-u] [-a UUID] [-b UUID] [OPTION...]
 
 Download private messages from FurAffinity, split them into conversations with
 individual users, and generate an HTML document for each conversation that can
@@ -21,7 +21,8 @@ Optional Arguments:
   -u, --update     Check for new private messages and download them.
   -a UUID          Specify session token A instead of prompting for it.
   -b UUID          Specify session token B instead of prompting for it.
-  -f FOLDER...     Check for new messages only in the specified folders.
+  -f FOLDER...     Check for new messages only in the given folders.
+  -p PAGE          Scan folders only up to the given page depth.
   -e, --no-emojis  Replace smilies with BBCode text.
   -r, --keep-re    Do not strip RE: from message subjects.
 """.strip()
