@@ -80,7 +80,7 @@ HTTP_SLEEP = 5
 # The number of times to attempt an HTTP request before giving up.
 HTTP_ATTEMPTS = 3
 
-FOLDERS = ('inbox', 'outbox', 'archive', 'trash')
+FOLDERS = ('inbox', 'sent', 'archive', 'trash')
 
 SMILIE_REPLACEMENTS = (
   ('<i class="smilie tongue"></i>', ':-p', '&#128539;'),
