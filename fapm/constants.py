@@ -43,7 +43,7 @@ control over your FurAffinity account. Only you can decide whether or not you
 trust this software and wish to continue using it.
 """.lstrip()
 
-ABOUT_LOG_OUT = """
+ABOUT_LOGOUT = """
 For your security, you should log out of your FurAffinity account. This will
 invalidate the session cookies you provided to this script.
 """.rstrip()
@@ -74,7 +74,7 @@ RE_CLASSIC_USERNAME = _re.compile(r'<a id="my-username".*?\~(.*?)</a>', _re.DOTA
 # value to a smaller number! Clobbering FurAffinity's servers hurts us all.
 # Be considerate to your fellow furries and be patient. You can let the script
 # run overnight if you have a lot of messages to download.
-SLEEP = 5
+HTTP_SLEEP = 5
 
 FOLDERS = ('inbox', 'outbox', 'archive', 'trash')
 

@@ -86,4 +86,4 @@ with open('index.html', 'w') as file_:
     file_.write(index_template.render(messages=messages_for_index))
 
 if cli.args.update:
-    print(ABOUT_LOG_OUT)
+    print(ABOUT_LOGOUT)

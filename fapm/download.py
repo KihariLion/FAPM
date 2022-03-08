@@ -8,8 +8,8 @@ from .constants import *
 from .message import Message
 
 
-token_a = cli.args.a if cli.args.a and cli.is_session_token(cli.args.a) else None
-token_b = cli.args.b if cli.args.b and cli.is_session_token(cli.args.b) else None
+token_a = cli.args.a if cli.args.a and cli.is_uuid(cli.args.a) else None
+token_b = cli.args.b if cli.args.b and cli.is_uuid(cli.args.b) else None
 folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
 
 unread_messages = []
@@ -22,7 +22,7 @@ def _get_ids(folder, page):
     request.add_header('Host', 'www.furaffinity.net')
     request.add_header('User-Agent', f'FAPM/{VERSION}')
     html = urllib.request.urlopen(request).read().decode()
-    time.sleep(SLEEP)
+    time.sleep(HTTP_SLEEP)
     unread_messages.extend(int(id_) for id_ in (RE_MODERN_UNREAD.findall(html) or RE_CLASSIC_UNREAD.findall(html)))
     return [int(id_) for id_ in (RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html))]
 
@@ -34,10 +34,10 @@ def prompt_session_tokens():
     if token_a is None or token_b is None:
         print(ABOUT_COOKIES)
 
-        while not cli.is_session_token(token_a):
+        while not cli.is_uuid(token_a):
             token_a = input(f'UUID for session token A: ').strip()
 
-        while not cli.is_session_token(token_b):
+        while not cli.is_uuid(token_b):
             token_b = input(f'UUID for session token B: ').strip()
 
         print()
@@ -64,7 +64,7 @@ def get_message(id_, folder):
     request.add_header('Host', 'www.furaffinity.net')
     request.add_header('User-Agent', f'FAPM/{VERSION}')
     html = urllib.request.urlopen(request).read().decode()
-    time.sleep(SLEEP)
+    time.sleep(HTTP_SLEEP)
     return Message(html=html, id_=id_, folder=folder)
 
 
@@ -79,4 +79,4 @@ def mark_unread(ids, folder):
     request.add_header('Host', 'www.furaffinity.net')
     request.add_header('User-Agent', f'FAPM/{VERSION}')
     urllib.request.urlopen(request)
-    time.sleep(SLEEP)
+    time.sleep(HTTP_SLEEP)

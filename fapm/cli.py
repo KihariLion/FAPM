@@ -22,18 +22,18 @@ def die(message, exit_code=1, show_usage=False):
 
 def prompt_session_token(name):
     value = input(f'UUID for session token {name}: ').strip()
-    return value if is_session_token(value) else None
+    return value if is_uuid(value) else None
 
 
-def valid_folder_type(value):
+def folder_argument(value):
     if not is_folder(value.lower()):
-        raise argparse.ArgumentTypeError(f'invalid folder name: {value}')
+        raise argparse.ArgumentTypeError(f'invalid folder: {value}')
 
     return value.lower()
 
 
-def valid_session_token_type(value):
-    if not is_session_token(value):
+def uuid_argument(value):
+    if not is_uuid(value):
         raise argparse.ArgumentTypeError(f'invalid session token: {value}')
 
     return value
@@ -43,16 +43,16 @@ def is_folder(value):
     return value in FOLDERS
 
 
-def is_session_token(value):
+def is_uuid(value):
     return isinstance(value, str) and RE_UUID.match(value) is not None
 
 
 arg_parser = ArgumentParser(prog='fapm')
 arg_parser.add_argument('--version', action='version', version=VERSION)
 arg_parser.add_argument('-u', '--update', action='store_true')
-arg_parser.add_argument('-a', type=valid_session_token_type)
-arg_parser.add_argument('-b', type=valid_session_token_type)
-arg_parser.add_argument('-f', nargs='+', type=valid_folder_type)
+arg_parser.add_argument('-a', type=uuid_argument)
+arg_parser.add_argument('-b', type=uuid_argument)
+arg_parser.add_argument('-f', nargs='+', type=folder_argument)
 arg_parser.add_argument('-e', '--no-emojis', action='store_true')
 arg_parser.add_argument('-r', '--keep-re', action='store_true')
 
