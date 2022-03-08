@@ -50,7 +50,7 @@ if cli.args.update:
 
         for folder in unread_messages:
             if unread_messages[folder]:
-                print(f'Marking {pluralize(len(unread_messages[folder]), "unread message")} in {folder.title()} as such')
+                print(f'Marking {pluralize(len(unread_messages[folder]), "message")} in {folder.title()} as unread')
                 download.mark_unread(unread_messages[folder], folder)
 
     else:
