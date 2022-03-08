@@ -16,16 +16,16 @@ unread_messages = []
 
 
 def http_request(url, headers=None, data=None, html=False):
-    request = urllib.request.Request(url)
+    if data:
+        data = urllib.parse.urlencode(data).encode()
+
+    request = urllib.request.Request(url, data=data)
     request.add_header('Host', 'www.furaffinity.net')
     request.add_header('User-Agent', f'FAPM/{VERSION}')
 
     if headers:
         for name, value in headers.items():
             request.add_header(name, value)
-
-    if data:
-        data = urllib.parse.urlencode(data).encode()
 
     for attempt in range(HTTP_ATTEMPTS + 1):
         if attempt == HTTP_ATTEMPTS:
