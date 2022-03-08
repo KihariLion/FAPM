@@ -15,14 +15,38 @@ folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
 unread_messages = []
 
 
-def _get_ids(folder, page):
-    print(f'Scanning messages in {folder.title()}, page {page:,}')
-    request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/{page}/')
-    request.add_header('Cookie', f'a={token_a}; b={token_b}; folder={folder}')
+def http_request(url, headers=None, data=None, html=False):
+    request = urllib.request.Request(url)
     request.add_header('Host', 'www.furaffinity.net')
     request.add_header('User-Agent', f'FAPM/{VERSION}')
-    html = urllib.request.urlopen(request).read().decode()
+
+    if headers:
+        for name, value in headers.items():
+            request.add_header(name, value)
+
+    if data:
+        data = urllib.parse.urlencode(data).encode()
+
+    for attempt in range(HTTP_ATTEMPTS + 1):
+        if attempt == HTTP_ATTEMPTS:
+            cli.die('HTTP exception limit reached')
+
+        try:
+            response = urllib.request.urlopen(request)
+        except:
+            cli.warn('HTTP exception raised, waiting to retry')
+            time.sleep(30)
+        else:
+            break
+
     time.sleep(HTTP_SLEEP)
+    return response.read().decode() if html else response
+
+
+def _get_ids(folder, page):
+    print(f'Scanning messages in {folder.title()}, page {page:,}')
+    headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
+    html = http_request(f'https://www.furaffinity.net/msg/pms/{page}/', headers, html=True)
     unread_messages.extend(int(id_) for id_ in (RE_MODERN_UNREAD.findall(html) or RE_CLASSIC_UNREAD.findall(html)))
     return [int(id_) for id_ in (RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html))]
 
@@ -59,12 +83,8 @@ def message_index():
 
 
 def get_message(id_, folder):
-    request = urllib.request.Request(f'https://www.furaffinity.net/viewmessage/{id_}/')
-    request.add_header('Cookie', f'a={token_a}; b={token_b}; folder={folder}')
-    request.add_header('Host', 'www.furaffinity.net')
-    request.add_header('User-Agent', f'FAPM/{VERSION}')
-    html = urllib.request.urlopen(request).read().decode()
-    time.sleep(HTTP_SLEEP)
+    headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
+    html = http_request(f'https://www.furaffinity.net/viewmessage/{id_}/', headers, html=True)
     return Message(html=html, id_=id_, folder=folder)
 
 
@@ -74,9 +94,5 @@ def get_message(id_, folder):
 def mark_unread(ids, folder):
     data = [('manage_notes', 1), ('move_to', 'unread')]
     data.extend(('items[]', id_) for id_ in ids)
-    request = urllib.request.Request(f'https://www.furaffinity.net/msg/pms/', data=urllib.parse.urlencode(data).encode())
-    request.add_header('Cookie', f'a={token_a}; b={token_b}; folder={folder}')
-    request.add_header('Host', 'www.furaffinity.net')
-    request.add_header('User-Agent', f'FAPM/{VERSION}')
-    urllib.request.urlopen(request)
-    time.sleep(HTTP_SLEEP)
+    headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
+    http_request('https://www.furaffinity.net/msg/pms/', headers, data)

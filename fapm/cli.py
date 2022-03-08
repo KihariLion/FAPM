@@ -16,8 +16,12 @@ def die(message, exit_code=1, show_usage=False):
     if show_usage:
         print(HELP.split('\n\n')[1], end='\n\n')
 
-    print(f'\033[1m{arg_parser.prog}: \033[31merror: \033[0m{message}')
+    print(f'{arg_parser.prog}: error: {message}')
     sys.exit(exit_code)
+
+
+def warn(message):
+    print(f'{arg_parser.prog}: warning: {message}')
 
 
 def prompt_session_token(name):

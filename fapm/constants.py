@@ -76,6 +76,9 @@ RE_CLASSIC_USERNAME = _re.compile(r'<a id="my-username".*?\~(.*?)</a>', _re.DOTA
 # run overnight if you have a lot of messages to download.
 HTTP_SLEEP = 5
 
+# The number of times to attempt an HTTP request before giving up.
+HTTP_ATTEMPTS = 3
+
 FOLDERS = ('inbox', 'outbox', 'archive', 'trash')
 
 SMILIE_REPLACEMENTS = (
