@@ -10,8 +10,6 @@ from .message import Message
 
 token_a = cli.args.a if cli.args.a and cli.is_uuid(cli.args.a) else None
 token_b = cli.args.b if cli.args.b and cli.is_uuid(cli.args.b) else None
-folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
-
 unread_messages = []
 
 
