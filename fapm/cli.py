@@ -32,7 +32,10 @@ def uuid_argument(value):
 
 
 def folder_argument(value):
-    if value.lower() not in FOLDERS:
+    if value.lower() == 'outbox':
+        warn('Outbox folder is now called Sent')
+        value = 'sent'
+    elif value.lower() not in FOLDERS:
         raise argparse.ArgumentTypeError(f'invalid folder: {value}')
 
     return value.lower()
