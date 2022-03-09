@@ -87,9 +87,6 @@ class Message(db.Model):
     def contact(self):
         return self.receiver if self.sent else self.sender
 
-    def timestamp_format(self, pattern='%Y-%m-%d %H:%M'):
-        return time.strftime(pattern, time.localtime(self.timestamp))
-
     def subject_format(self):
         if cli.args.keep_re:
             return self.subject
@@ -100,6 +97,9 @@ class Message(db.Model):
             subject = subject[3:].lstrip()
 
         return subject
+
+    def timestamp_format(self, pattern='%Y-%m-%d %H:%M'):
+        return time.strftime(pattern, time.localtime(self.timestamp))
 
     def text_format(self):
         text = self.text

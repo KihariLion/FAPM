@@ -24,18 +24,18 @@ def warn(message):
     print(f'{arg_parser.prog}: warning: {message}')
 
 
-def folder_argument(value):
-    if value.lower() not in FOLDERS:
-        raise argparse.ArgumentTypeError(f'invalid folder: {value}')
-
-    return value.lower()
-
-
 def uuid_argument(value):
     if not RE_UUID.match(value):
         raise argparse.ArgumentTypeError(f'invalid session token: {value}')
 
     return value
+
+
+def folder_argument(value):
+    if value.lower() not in FOLDERS:
+        raise argparse.ArgumentTypeError(f'invalid folder: {value}')
+
+    return value.lower()
 
 
 def page_argument(value):
