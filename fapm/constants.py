@@ -18,12 +18,12 @@ be viewed in a web browser.
 Optional Arguments:
   -h, --help       Show this help message and exit.
   --version        Show version number and exit.
-  -u, --update     Check for new private messages and download them.
+  -u, --update     Check for and download new private messages.
   -a UUID          Specify session token A instead of prompting for it.
   -b UUID          Specify session token B instead of prompting for it.
-  -f FOLDER...     Check for new messages only in the given folders.
-  -p PAGE          Scan folders only up to the given page depth.
-  -e, --no-emojis  Replace smilies with BBCode text.
+  -f FOLDER...     Check for new messages only in the specified folders.
+  -p PAGE          Scan folders only up to a maximum page number.
+  -e, --no-emojis  Replace smilies with BBCode text instead of emojis.
   -r, --keep-re    Do not strip RE: from message subjects.
 """.strip()
 
