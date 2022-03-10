@@ -30,25 +30,26 @@ Optional Arguments:
 VERSION = __version__
 
 ABOUT_COOKIES = """
-In Firefox, sign into your FurAffinity account, then press SHIFT F9 to open the
+In Firefox, sign into your FurAffinity account, then press \033[1mSHIFT F9\033[0m to open the
 Storage Inspector window. The cookies named A and B have values that might look
 similar to this:
 
-  abcdef01-2345-6789-abcd-ef0123456789
+  \033[1mabcdef01-2345-6789-abcd-ef0123456789\033[0m
 
-Double-click on a value to highlight it, then press CTRL C to copy it. Paste
+Double-click on a value to highlight it, then press \033[1mCTRL C\033[0m to copy it. Paste
 each of the values into the prompt below.
 
-WARNING: By entering your session data, you are giving this program complete
+\033[1m\033[33mWARNING: By entering your session data, you are giving this program complete
 control over your FurAffinity account. Only you can decide whether or not you
-trust this software and wish to continue using it.
+trust this software and wish to continue using it.\033[0m
 """.lstrip()
 
 ABOUT_LOGOUT = """
-IMPORTANT: For your security, you should log out of your FurAffinity account.
-This will invalidate the session cookies you provided to this script.
+\033[1m\033[33mIMPORTANT: For your security, you should log out of your FurAffinity account.
+This will invalidate the session cookies you provided to this script.\033[0m
 """.rstrip()
 
+RE_ANSI = _re.compile('\033\\[.+?m')
 RE_UUID = _re.compile('^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$')
 RE_QUOTE_START = _re.compile(r'\[QUOTE\]', _re.IGNORECASE)
 RE_QUOTE_END = _re.compile(r'\[/QUOTE\]', _re.IGNORECASE)

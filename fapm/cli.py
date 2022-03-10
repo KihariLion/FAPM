@@ -1,7 +1,11 @@
 import argparse
+import os
 import sys
 
 from .constants import *
+
+
+ANSI_SUPPORT = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty() and os.environ.get('FAPM_ANSI') == '1'
 
 
 class ArgumentParser(argparse.ArgumentParser):
@@ -16,12 +20,12 @@ def die(message, exit_code=1, show_usage=False):
     if show_usage:
         print(HELP.split('\n\n')[1], end='\n\n')
 
-    print(f'{arg_parser.prog}: error: {message}')
+    print_ansi(f'\033[1m{arg_parser.prog}: \033[31merror: \033[0m{message}')
     sys.exit(exit_code)
 
 
 def warn(message):
-    print(f'{arg_parser.prog}: warning: {message}')
+    print_ansi(f'\033[1m{arg_parser.prog}: \033[33mwarning: \033[0m{message}')
 
 
 def uuid_argument(value):
@@ -51,6 +55,17 @@ def page_argument(value):
         raise argparse.ArgumentTypeError(f'invalid page number: {value}')
 
     return value
+
+
+def print_ansi(*objects, **kwargs):
+    if not ANSI_SUPPORT:
+        objects = list(objects)
+
+        for i in range(len(objects)):
+            if isinstance(objects[i], str):
+                objects[i] = RE_ANSI.sub('', objects[i])
+
+    print(*objects, **kwargs)
 
 
 arg_parser = ArgumentParser(prog='fapm')

@@ -22,7 +22,7 @@ def prompt_session_tokens():
     global token_b
 
     if token_a is None or token_b is None:
-        print(ABOUT_COOKIES)
+        cli.print_ansi(ABOUT_COOKIES)
 
         while not is_uuid(token_a):
             token_a = input(f'UUID for session token A: ').strip()
