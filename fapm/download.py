@@ -90,11 +90,10 @@ def get_message(id_, folder):
     return Message(html=html, id_=id_, folder=folder)
 
 
-# The folder parameter is probably not necessary, but more research is needed.
-# For now, call this function for each folder that contains unread messages,
-# and only for messages that were received by the user.
-def mark_unread(ids, folder):
+# Call this function only for received messages, since FurAffinity could
+# conceivably allow marking another user's message as unread.
+def mark_messages_unread(ids):
     data = [('manage_notes', 1), ('move_to', 'unread')]
     data.extend(('items[]', id_) for id_ in ids)
-    headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
+    headers = {'Cookie': f'a={token_a}; b={token_b}'}
     http_request('https://www.furaffinity.net/msg/pms/', headers, data)

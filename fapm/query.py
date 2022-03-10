@@ -4,7 +4,7 @@ from . import db
 from .message import Message
 
 
-def get_database_index():
+def get_local_index():
     with db.Session() as session:
         messages = session.query(Message.id_, Message.folder) \
           .order_by(Message.id_.desc()) \

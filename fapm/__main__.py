@@ -19,39 +19,37 @@ db.Model.metadata.create_all()
 
 if cli.args.update:
     download.prompt_session_tokens()
+    local_index = query.get_local_index()
+    online_index = download.get_online_index()
+    new_index = {id_: folder for id_, folder in online_index.items() if id_ not in local_index}
+    moved_index = {id_: folder for id_, folder in online_index.items() if id_ in local_index and local_index[id_] != folder}
 
-    local_messages = query.get_database_index()
-    online_messages = download.get_online_index()
-    new_messages = {id_: folder for id_, folder in online_messages.items() if id_ not in local_messages}
-    moved_messages = {id_: folder for id_, folder in online_messages.items() if id_ in local_messages and local_messages[id_] != folder}
-    unread_messages = {'inbox': [], 'trash': [], 'archive': []}
+    if moved_index:
+        print(f'Updating {pluralize(len(moved_index), "message")} moved to other folders')
 
-    if moved_messages:
-        print(f'Updating {pluralize(len(moved_messages), "message")} moved to other folders')
-
-        for id_, folder in moved_messages.items():
+        for id_, folder in moved_index.items():
             query.move_message(id_, folder)
 
-    if new_messages:
-        print(f'Found {pluralize(len(new_messages), "message")} not in database')
+    if new_index:
+        unread_index = []
+        print(f'Found {pluralize(len(new_index), "message")} not in database')
 
         with db.Session() as session:
-            for id_, folder in new_messages.items():
+            for id_, folder in new_index.items():
                 message = download.get_message(id_, folder)
                 print(f'Downloaded message [{message.timestamp_format()}] {message.subject or "No Subject"}')
 
                 if id_ in download.unread_messages and not message.sent:
-                    unread_messages[folder].append(id_)
+                    unread_index.append(id_)
 
                 session.add(message)
 
             session.commit()
             print('Finished downloading messages')
 
-        for folder in unread_messages:
-            if unread_messages[folder]:
-                print(f'Marking {pluralize(len(unread_messages[folder]), "message")} in {folder.title()} as unread')
-                download.mark_unread(unread_messages[folder], folder)
+        if unread_index:
+            print(f'Marking {pluralize(len(unread_index), "message")} as unread')
+            download.mark_messages_unread(unread_index)
 
     else:
         print('No new messages to download')
