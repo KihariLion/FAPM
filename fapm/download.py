@@ -63,7 +63,7 @@ def http_request(url, headers=None, data=None, html=False):
 
 def get_online_index():
     online_index = {}
-    folders = tuple(set(cli.args.f)) if cli.args.f else FOLDERS
+    folders = [folder for folder in FOLDERS if folder in cli.args.f] if cli.args.f else FOLDERS
 
     for folder in folders:
         headers = {'Cookie': f'a={token_a}; b={token_b}; folder={folder}'}
