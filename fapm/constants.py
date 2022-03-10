@@ -45,8 +45,8 @@ trust this software and wish to continue using it.
 """.lstrip()
 
 ABOUT_LOGOUT = """
-For your security, you should log out of your FurAffinity account. This will
-invalidate the session cookies you provided to this script.
+IMPORTANT: For your security, you should log out of your FurAffinity account.
+This will invalidate the session cookies you provided to this script.
 """.rstrip()
 
 RE_UUID = _re.compile('^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$')
