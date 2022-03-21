@@ -1,14 +1,18 @@
+import hashlib
 import os
 import sys
 
 import jinja2
-from werkzeug.utils import secure_filename
 
 from . import cli
 from . import db
 from . import download
 from . import query
 from .constants import *
+
+
+def md5(value):
+    return hashlib.md5(value.encode()).hexdigest()
 
 
 def pluralize(count, singular, plural=None):
@@ -56,7 +60,7 @@ if cli.args.update:
 
 jinja_loader = jinja2.FileSystemLoader('templates')
 jinja_env = jinja2.Environment(loader=jinja_loader, autoescape=True)
-jinja_env.globals.update(secure_filename=secure_filename)
+jinja_env.globals.update(md5=md5)
 index_template = jinja_env.get_template('index.html')
 conversation_template = jinja_env.get_template('conversation.html')
 
@@ -77,7 +81,7 @@ for contact in contacts:
     messages = query.get_conversation(contact)
     messages_for_index.append(messages[-1])
 
-    with open(f'html/{secure_filename(contact)}.html', 'w') as file_:
+    with open(f'html/{md5(contact)}.html', 'w') as file_:
         file_.write(conversation_template.render(contact=contact, messages=messages))
 
 with open('index.html', 'w') as file_:
