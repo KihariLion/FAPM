@@ -16,15 +16,16 @@ individual users, and generate an HTML document for each conversation that can
 be viewed in a web browser.
 
 Optional Arguments:
-  -h, --help       Show this help message and exit.
-  --version        Show version number and exit.
-  -u, --update     Check for and download new private messages.
-  -a UUID          Specify session token A instead of prompting for it.
-  -b UUID          Specify session token B instead of prompting for it.
-  -f FOLDER...     Check for new messages only in the specified folders.
-  -p PAGE          Scan folders only up to a maximum page number.
-  -e, --no-emojis  Replace smilies with BBCode text instead of emojis.
-  -r, --keep-re    Do not strip RE: from message subjects.
+  -h, --help          Show this help message and exit.
+  --version           Show version number and exit.
+  -u, --update        Check for and download new private messages.
+  -a UUID             Specify session token A instead of prompting for it.
+  -b UUID             Specify session token B instead of prompting for it.
+  -f FOLDER...        Check for new messages only in the specified folders.
+  -p PAGE             Scan folders only up to a maximum page number.
+  -e, --no-emojis     Replace smilies with BBCode text instead of emojis.
+  -r, --keep-re       Do not strip RE: from message subjects.
+  -t, --sort-by-time  Sort conversations by time of last message received.
 """.strip()
 
 VERSION = __version__

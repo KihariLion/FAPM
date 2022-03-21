@@ -84,6 +84,9 @@ for contact in contacts:
     with open(f'html/{md5(contact)}.html', 'w') as file_:
         file_.write(conversation_template.render(contact=contact, messages=messages))
 
+if cli.args.sort_by_time:
+    messages_for_index.sort(key=lambda message: message.timestamp, reverse=True)
+
 with open('index.html', 'w') as file_:
     file_.write(index_template.render(messages=messages_for_index))
 

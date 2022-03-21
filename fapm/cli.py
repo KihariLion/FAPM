@@ -77,5 +77,6 @@ arg_parser.add_argument('-f', metavar="FOLDER", type=folder_argument, nargs='+')
 arg_parser.add_argument('-p', metavar="PAGE", type=page_argument)
 arg_parser.add_argument('-e', '--no-emojis', action='store_true')
 arg_parser.add_argument('-r', '--keep-re', action='store_true')
+arg_parser.add_argument('-t', '--sort-by-time', action='store_true')
 
 args = arg_parser.parse_args()
