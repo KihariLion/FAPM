@@ -5,7 +5,7 @@ from . import __version__
 
 HELP = """
 FurAffinity Private Message Downloader
-https://www.github.com/kiharilion
+https://github.com/KihariLion
 
 Usage: python3 -m fapm --help
        python3 -m fapm --version
