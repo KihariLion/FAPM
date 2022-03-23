@@ -47,7 +47,7 @@ trust this software and wish to continue using it.\033[0m
 
 ABOUT_LOGOUT = """
 \033[1m\033[33mIMPORTANT: For your security, you should log out of your FurAffinity account.
-This will invalidate the session cookies you provided to this script.\033[0m
+This will invalidate the session data you provided to this script.\033[0m
 """.rstrip()
 
 RE_ANSI = _re.compile('\033\\[.+?m')

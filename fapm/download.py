@@ -72,6 +72,10 @@ def get_online_index():
         while cli.args.p is None or page <= cli.args.p:
             print(f'Scanning messages in {folder.title()}, page {page:,}')
             html = http_request(f'https://www.furaffinity.net/msg/pms/{page}/', headers, html=True)
+
+            if not (RE_MODERN_USERNAME.search(html) or RE_CLASSIC_USERNAME.search(html)):
+                cli.die('incorrect session credentials')
+
             ids = [int(id_) for id_ in RE_MODERN_ID.findall(html) or RE_CLASSIC_ID.findall(html)]
 
             if not ids:
