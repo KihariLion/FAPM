@@ -32,7 +32,7 @@ if cli.args.update:
         print(f'Updating {pluralize(len(moved_index), "message")} moved to other folders')
 
         for id_, folder in moved_index.items():
-            query.move_message(id_, folder)
+            query.set_message_folder(id_, folder)
 
     if new_index:
         unread_index = []

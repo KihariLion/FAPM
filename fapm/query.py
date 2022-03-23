@@ -13,7 +13,7 @@ def get_local_index():
     return {key:value for key, value in messages}
 
 
-def move_message(id_, folder):
+def set_message_folder(id_, folder):
     with db.Session() as session:
         message = session.query(Message).get(id_)
         message.folder = folder
