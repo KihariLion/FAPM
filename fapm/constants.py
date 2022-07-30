@@ -23,6 +23,7 @@ Optional Arguments:
   -b UUID             Specify session token B instead of prompting for it.
   -f FOLDER...        Check for new messages only in the specified folders.
   -p PAGE             Scan folders only up to a maximum page number.
+  --user-agent AGENT  Specify a custom HTTP User-Agent string.
   -e, --no-emojis     Replace smilies with BBCode text instead of emojis.
   -r, --keep-re       Do not strip RE: from message subjects.
   -t, --sort-by-time  Sort conversations by time of last message received.
