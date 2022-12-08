@@ -39,7 +39,7 @@ def http_request(url, headers=None, data=None, html=False):
 
     request = urllib.request.Request(url, data=data)
     request.add_header('Host', 'www.furaffinity.net')
-    request.add_header('User-Agent', cli.args.user_agent or f'FAPM/{VERSION}')
+    request.add_header('User-Agent', cli.args.g or f'FAPM/{VERSION}')
 
     if headers:
         for name, value in headers.items():
