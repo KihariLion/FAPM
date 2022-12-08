@@ -27,8 +27,7 @@ $ `pip install -r requirements.txt`
 
 ### Requirements
 
-`python3.6` (or higher)  
-`python3-venv`
+`python3.6` (or higher)
 
 ### Setup
 
