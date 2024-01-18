@@ -19,7 +19,7 @@ def pluralize(count, singular, plural=None):
     return f'{count:,} {singular if count == 1 else plural or singular + "s"}'
 
 
-db.Model.metadata.create_all()
+db.Model.metadata.create_all(db.engine)
 
 if cli.args.update:
     download.prompt_session_tokens()
