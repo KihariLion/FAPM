@@ -57,15 +57,15 @@ def page_argument(value):
     return value
 
 
-def print_ansi(*objects, **kwargs):
+def print_ansi(*pargs, **kwargs):
     if not ANSI_SUPPORT:
-        objects = list(objects)
+        pargs = list(pargs)
 
-        for i in range(len(objects)):
-            if isinstance(objects[i], str):
-                objects[i] = RE_ANSI.sub('', objects[i])
+        for i in range(len(pargs)):
+            if isinstance(pargs[i], str):
+                pargs[i] = RE_ANSI.sub('', pargs[i])
 
-    print(*objects, **kwargs)
+    print(*pargs, **kwargs)
 
 
 arg_parser = ArgumentParser(prog='fapm')

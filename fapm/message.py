@@ -72,7 +72,7 @@ class Message(db.Model):
     receiver = Column(Unicode, nullable=False)
     text = Column(Unicode, nullable=False)
 
-    def __init__(self, html=None, *args, **kwargs):
+    def __init__(self, html=None, *pargs, **kwargs):
         if html:
             kwargs['subject'] = extract_subject(html)
             kwargs['timestamp'] = extract_timestamp(html)
@@ -81,7 +81,7 @@ class Message(db.Model):
             kwargs['text'] = extract_text(html)
             kwargs['sent'] = 1 if extract_username(html) == kwargs['sender'] else 0
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*pargs, **kwargs)
 
     @property
     def contact(self):
