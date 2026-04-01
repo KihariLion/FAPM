@@ -48,7 +48,13 @@ def extract_text(html):
     if match is None:
         cli.die('cannot extract message text')
 
-    return match.group(1).replace('\n', '').replace('\r', '').strip()
+    text = match.group(1)
+    warning = RE_MODERN_WARNING.search(text) or RE_CLASSIC_WARNING.search(text)
+
+    if warning:
+        text = text[warning.span()[1]:]
+
+    return text.replace('\n', '').replace('\r', '').strip()
 
 
 def extract_username(html):
