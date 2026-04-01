@@ -25,6 +25,9 @@ def extract_timestamp(html):
 
 
 def extract_sender(html):
+    if RE_MODERN_DELETED_SENDER.search(html) or RE_CLASSIC_DELETED_SENDER.search(html):
+        return '[deleted]'
+
     match = RE_MODERN_SENDER.search(html) or RE_CLASSIC_SENDER.search(html)
 
     if match is None:
@@ -34,7 +37,16 @@ def extract_sender(html):
 
 
 def extract_receiver(html):
-    match = RE_MODERN_RECEIVER.search(html) or RE_CLASSIC_RECEIVER.search(html)
+    re_modern = RE_MODERN_RECEIVER
+    re_classic = RE_CLASSIC_RECEIVER
+
+    if RE_MODERN_DELETED_SENDER.search(html) or RE_CLASSIC_DELETED_SENDER.search(html):
+        re_modern = RE_MODERN_SENDER
+        re_classic = RE_CLASSIC_SENDER
+    elif RE_MODERN_DELETED_RECEIVER.search(html) or RE_CLASSIC_DELETED_RECEIVER.search(html):
+        return '[deleted]'
+
+    match = re_modern.search(html) or re_classic.search(html)
 
     if match is None:
         cli.die('cannot extract message receiver')

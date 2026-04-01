@@ -65,6 +65,8 @@ RE_MODERN_RECEIVER = _re.compile(r'<div class="section-header">.*?<span class="j
 RE_MODERN_TEXT = _re.compile(r'<div class="user-submitted-links">(.*?)</div>\s*<div class="section-options">', _re.DOTALL)
 RE_MODERN_USERNAME = _re.compile(r'<img class="loggedin_user_avatar .*?<a .*?>(.*?)</a>', _re.DOTALL)
 RE_MODERN_WARNING = _re.compile(f'<div class="noteWarningMessage.*?</div>\s*</div>', _re.DOTALL)
+RE_MODERN_DELETED_SENDER = _re.compile(f'<div class="section-header">.*?<span class="user-name-deleted">.*?<span class="js-displayName">', _re.DOTALL)
+RE_MODERN_DELETED_RECEIVER = _re.compile(f'<div class="section-header">.*?<span class="js-displayName">.*?<span class="user-name-deleted">', _re.DOTALL)
 
 RE_CLASSIC_ID = _re.compile(r'href="/viewmessage/(\d+)/"')
 RE_CLASSIC_UNREAD = _re.compile(r'<a class=".*?note-unread.*?" href="/viewmessage/(\d+)/"')
@@ -75,6 +77,8 @@ RE_CLASSIC_RECEIVER = _re.compile(r'<a href="/msg/compose/">.*?<span class="js-d
 RE_CLASSIC_TEXT = _re.compile(r'<a href="/msg/compose/">.*? class="popup_date".*?>.*?<br/><br/>(.+?)</td>', _re.DOTALL)
 RE_CLASSIC_USERNAME = _re.compile(r'<a id="my-username".*?\~(.*?)</a>', _re.DOTALL)
 RE_CLASSIC_WARNING = RE_MODERN_WARNING
+RE_CLASSIC_DELETED_SENDER = _re.compile(f'<a href="/msg/compose/">.*?<span class="user-name-deleted">.*?<span class="js-displayName">', _re.DOTALL)
+RE_CLASSIC_DELETED_RECEIVER = _re.compile(f'<a href="/msg/compose/">.*?<span class="js-displayName">.*?<span class="user-name-deleted">', _re.DOTALL)
 
 # The number of seconds to pause after each HTTP request. Do not change this
 # value to a smaller number! Clobbering FurAffinity's servers hurts us all.
